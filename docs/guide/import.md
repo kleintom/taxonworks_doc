@@ -389,11 +389,15 @@ In cases where you need to import predicate values targetting the imported colle
 
 ##### Mappings to biocuration groups and classes
 
-The importer is able to map `sex` into the appropriate biocuration group and select the appropriate class according to the value. For additional mappings you may use a special column name pattern to select a biocuration group like `TW::BiocurationGroup:<group_identifier>` where `<group_identifier>` can be the name of the biocuration group or its URI. In addition the values must match an existing biocuration class and you may use either the class's name or URI. For example, if you have a biocuration group registered with name `Caste` and URI `urn:example:ants:caste` and biocuration class with name `Queen` and URI `urn:example:ants:caste:queen`, the following examples all create the same biocuration classification: TODO: I think the headers need to be like TW::BiocurationGroup:<group_identifier>?
-|Caste|urn:example:ants:caste|
-|---|---|
-Queen|urn:example:ants:caste:queen
-urn:example:ants:caste:queen|Queen
+The importer is able to map `sex` into the appropriate biocuration group and select the appropriate class according to the value. For additional mappings you may use a special column name pattern to select a biocuration group like `TW::BiocurationGroup:<group_identifier>` where `<group_identifier>` can be the name of the biocuration group or its URI. In addition the values must match an existing biocuration class and you may use either the class's name or URI. For example, if you have a biocuration group registered with name `Caste` and URI `urn:example:ants:caste` and biocuration class with name `Queen` and URI `urn:example:ants:caste:queen`, any combination of the following column header and cell value forms will create the same biocuration classification:
+
+**Column header** (either works):
+- `TW::BiocurationGroup:Caste`
+- `TW::BiocurationGroup:urn:example:ants:caste`
+
+**Cell value** (either works):
+- `Queen`
+- `urn:example:ants:caste:queen`
 
 ##### Mappings to DwC predicates
 
