@@ -267,8 +267,8 @@ To use this approach you must have your specimen data in a single spreadsheet-st
 Preparing for an import follows the following general procedures:
 
 - [Map your data](/guide/import#map-your-data) (provide a column header) for each column of data to be imported
+- [Add TaxonWorks data to support your DwC import](/guide/import#add-taxonworks-data-to-support-your-dwc-occurrence-data-import) by creating records that will be used during the import process
 - [Configure Settings in the import task]() TODO
-- [Configure TaxonWorks for your DwC import](/guide/import#configure-taxonworks-for-your-dwc-occurrence-data-import) by creating records that will be used during the import process
 
 ::: tip
 As part of your process you may need to go back and forth between mapping and configuring
@@ -293,13 +293,16 @@ As headers, these will look like this:
 A first step is to go through your data and figure out which column header types you'll need. Start by matching to supported DwC terms, then go on from there.
 :::
 
-TODO: add `otu_id` in the appropriate place and explain its behavior.
-
 #### DwC term mapping
 
 When going from DwC, a flat format, to TaxonWorks you're moving your data from rows to Things. We can group the DwC terms into classes to reflect where they end up in TaxonWorks.
 
-Of the terms described below, the three required for occurrence data import are `occurrenceID`, `scientificName`, and `basisOfRecord`.
+Of the terms described below, your occurrence import file is required to provide columns for:
+- `occurrenceID`,
+- `basisOfRecord`, and 
+- `TW:TaxonDetermination:otu_id` and/or `scientificName` - each row must contain one (or both) of these columns; if `TW:TaxonDetermination:otu_id` is present then all other taxon determination columns are ignored.
+
+
 
 ##### Record-level class
 
@@ -352,7 +355,8 @@ Of the terms described below, the three required for occurrence data import are 
 
 | Term                       | Mapping                                                                                                                                                                                                                                                                                                                                                                               |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `nomenclaturalCode`        | Selects the nomenclatural code for the taxon rank used when creating protonyms - allowed values are `iczn`, `icn`, `icnp`, `icvcn` (case-insensitive). The value itself is not imported. If Taxon Names need to be created then either this field or the corresponding default setting must be provided (this field overrides the default when both exist). sentence                                                                                                                                                                                                                                                                     |
+| `TW:TaxonDetermination:otu_id` | The id of the TW OTU to assign to the Taxon Determination of the imported Collection Object. _All other Taxon class columns below are __ignored__ when this id is provided._ For existing names this is the preferred and suggested way to import your determinations - see the 'Match OTU by Taxon Name' task in TW.
+| `nomenclaturalCode`        | Selects the nomenclatural code for the taxon rank used when creating protonyms - allowed values are `iczn`, `icn`, `icnp`, `icvcn` (case-insensitive). The value itself is not imported. If Taxon Names need to be created then either this field or the corresponding default setting must be provided (this field overrides the default when both exist).                                                                                                                                                                                                                                                                     |
 | `kingdom`                  | Creates (unless already present) a protonym at kingdom rank.                                                                                                                                                                                                                                                                                                                           |
 | `phylum`                   | Creates (unless already present) a protonym at phylum rank.                                                                                                                                                                                                                                                                                                                            |
 | `class`                    | Creates (unless already present) a protonym at class rank.                                                                                                                                                                                                                                                                                                                             |
@@ -364,7 +368,7 @@ Of the terms described below, the three required for occurrence data import are 
 | `infraspecificEpithet`     | __Ignored__. Extracted from `scientificName` instead.                                                                                                                                                                                                                                                                                                                                      |
 | `scientificName`           | One or more protonyms created (only when not present already) with their corresponding ranks and placements.                                                                                                                                                                                                                                                                               |
 | `taxonRank`                | The taxon rank of the most specific protonym.                                                                                                                                                                                                                                                                                                                                          |
-| `higherClassification`     | One or more protonyms created (only when not present already) with their corresponding ranks and placement. In case a protonym was not already present, only family-group and lower names will be created - any name with classsification higher than family-group that doesn't already exist in TW (possibly as a result of an already-processed row for that name) will result in error. _Names at genus rank or lower are ignored and extracted from `scientificName` instead._ |
+| `higherClassification`     | One or more protonyms created (only when not present already) with their corresponding ranks and placement. Processed after individual rank fields (`kingdom` through `subtribe`): any name in `higherClassification` that matches a name already established by an individual rank field (matched by string) is assigned that field's explicit rank. For names that appear only in `higherClassification` (not covered by an individual rank field), only family-group names will be created — any name above family-group that doesn't already exist in TW will result in error (it may already exist from a previously-processed row). _Names at genus rank or lower are ignored and extracted from `scientificName` instead._ |
 | `scientificNameAuthorship` | Verbatim author of most specific protonym.                                                                                                                                                                                                                                                                                                                                           |
 
 #### TaxonWorks mappings
@@ -375,7 +379,7 @@ The DwC importer task includes some TW-specific mappings that are neither DwC co
 If submitting an actual DwC-A zip file and not a tab-separated text file or spreadsheet, these TW-specific mappings have to be placed as headers in the core table, and not in meta.xml. If you are replacing a mapping from meta.xml, you must make sure to comment it out and also if inserting columns make sure you do the appropriate adjustments to avoid collision. <-- Clarify this
 :::
 
-_See [Configure TaxonWorks for your DwC import](/guide/import#configure-taxonworks-for-your-dwc-import) for how to create the records referenced in these mappings._
+_See [Add TaxonWorks data to support your DwC import](/guide/import#add-taxonworks-data-to-support-your-dwc-occurrence-data-import) for how to create the records referenced in these mappings._
 
 ##### Mappings to project predicates
 
@@ -407,7 +411,7 @@ This is an advanced mapping and requires knowledge of the underlying TW models. 
 | `CollectionObject` | `buffered_collecting_event`, `buffered_determinations`, `buffered_other_labels`, `total`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `CollectingEvent`  | document_label, elevation_precision, end_date_day, end_date_month, end_date_year, field_notes, formation, group, lithology, max_ma, maximum_elevation, member, min_ma, minimum_elevation, print_label, start_date_day, start_date_month, start_date_year, time_end_hour, time_end_minute, time_end_second, time_start_hour, time_start_minute, time_start_second, verbatim_collectors, verbatim_date, verbatim_datum, verbatim_elevation, verbatim_geolocation_uncertainty, verbatim_habitat, verbatim_label, verbatim_latitude, verbatim_locality, verbatim_longitude, verbatim_method, verbatim_trip_identifier |
 
-### Configure TaxonWorks for your DwC Occurrence data import
+### Add TaxonWorks data to support your DwC Occurrence data import
 
 To import your DwC you many need to create several types of things in TaxonWorks. These include [namespaces](Manual/identifiers#namespaces) and [controlled vocabulary terms](Manual/customization#controlled-vocabulary-terms).
 
@@ -442,6 +446,13 @@ Column headers that can't be linked via one of the 3 mechanisms are ignored duri
 ::: tip
 You can augment your data after import with batch update functionality inside TW. Carefully planning your overal import process can lead to a more efficient overall approach. Sometimes it's easier to work in spreadsheets, sometimes within a database.
 :::
+
+### Occurrence Import FAQ (Frequently Asked Questions)
+#### When are names related to Taxon Determination auto-created?
+- If you set the `Restrict import to existing nomenclature only` option in Settings, then never. If this is not set, read on.
+- If you use the `TW:TaxonDetermination:otu_id` column to match to a name already present in TW, then never.
+- If you use the `scientificName` and individual rank columns above genus, those names will be created when not already present.
+- If you use the `higherClassification` column, only family-group names will be created as needed (higher rank names must match a rank column or an existing TW name).
 
 ## Drag and drop
 
