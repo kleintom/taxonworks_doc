@@ -325,7 +325,12 @@ Of the terms described below, your occurrence import file is required to provide
 | `sex`             | Selects the biocuration class from the "sex" biocuration group to be assigned as biocuration classification for the specimen.                                                                                                                                                                                                                                                                                                                  |
 | `preparations`    | Selects an existing preparation having the same name.                                                                                                                                                                                                                                                                                                           |
 ###### `catalogNumber` details
-- The namespace is selected from the namespaces lookup table in import settings queried by the `institutionCode`:`collectionCode` pair (or, alternatively, just the `collectionCode`). 
+- **Rows with a `catalogNumber` are marked as Not Ready until their namespace has been resolved.**
+- The namespace is matched to a TW namespace as follows:
+  - if there's a `TW:Namespace:catalogNumber` value, check it and nothing else
+  - if there's only a `collectionCode` value, check the `collectionCode` to namespace mapping in the settings
+  - if there's a `collectionCode` and an `institutionCode` value, first check the `institutionCode:collectionCode` to namespace mapping in settings, and then check the `collectionCode` mapping in settings
+- 
   - If you select the `Error records when computed identifier will not match catalogNumber` setting then your `catalogNumber` value *must* include its namespaced short name prefix (e.g. `abc123`, not just `123`). If that option is not selected then you can write your identifier value with or without its namespace prefix.
 - If you require several records to share the same Catalog Number identifier, you may do so by enabling the `Containerize specimen with existing ones when catalog number already exists` import setting, along with distinct `recordNumber` values.
 
@@ -358,7 +363,8 @@ Of the terms described below, your occurrence import file is required to provide
 - If not empty, the importer requires a TW-specific column named `TW:Namespace:EventID`, as follows: 
   - option 1: you may specify that the identifier is global by providing a global identifier type string, such as `Identifier::Global::Uuid`, `Identifier::Global::Lsid`, etc. (in this case no namespace is required);
   - option 2: provide the short name of a TW namespace;
-  - option 3: if left empty, the importer assigns a dataset-specific namespace with a synthetic name that you can later change. 
+  - option 3: if left empty, the importer assigns a dataset-specific namespace with a synthetic name that you can later change.
+In cases 2 and 3 an `Identifier::Local::Event` is created.
 - If you select the `Error records when computed identifier will not match eventID` setting then your `eventID` value *must* include its namespaced short name prefix (e.g. `abc123`, not just `123`). If that option is not selected then you can write your identifier value with or without its namespace prefix.
 - _When an existing TW Collecting Event already has the identifier you define in this way, the importer re-uses it and all other event-related data is ignored._ 
 - If a Collecting Event is already matched by `fieldNumber`, this identifier must match the same Collecting Event, otherwise the importer will reject the record.
@@ -480,11 +486,39 @@ When processing a row, if the row has a catalog number that already exists on an
 ##### Restrict import to existing nomenclature only
 When checked, no new names will be created in TW. It's *not* necessarily true that a given name in the import must exactly match a name already in TW: whether this option is selected or not, we will sometimes attempt to match against multiple gender endings for a given name. If an import name can't be matched, the row is in error.
 
-#### Error records when computed identifier will not match eventID
-If you provide an `eventID` and the associated `TW:Namespace:EventID` provides a TW namespace, then the `eventID` must start with the short name of the namespace followed by its separator value. Apply this setting to check that your `eventID`s are all of the expected form.
+##### Error records when computed identifier will not match eventID
+If you provide an `eventID` and the associated `TW:Namespace:EventID` provides a TW namespace, then the `eventID` must start with the short name of the namespace followed by its separator value. Apply this setting to ensure that your `eventID`s will all be exported exactly as you expect.
 
-#### Error records when computed identifier will not match catalogNumber
+##### Error records when computed identifier will not match catalogNumber
+If you provide a `catalogNumber` then it must start with the short name of the namespace determined by your `institutionCode:collectionCode` pairing. Apply this setting to ensure that your `catalogNumber`s will all be exported exactly as you expect.
 
+##### Enable searching for Organization name in determinedBy field
+When this option is enabled, the search for a name in the `determinedBy` field starts with Organizations and then People; otherwise it only searches People.
+
+##### Also search for Organization alternate name
+*Only applies when `Enable searching for Organization name in determinedBy field` is checked.* In that case the `determinedBy` field is also matched against the `alternate_name` field of Organizations.
+
+##### Geographic Area matching settings
+If your import includes one or more of the `county`, `stateProvince`, and `country` or `countryCode` DwC fields, then you may want to place requirements on the ways in which those fields match to a TW Geographic Area, using the options below. In general, the rules for matching are:
+- county + country isn't allowed (you'd need to include a stateProvince as well), all other combinations are allowed and can match.
+- nestings must be geopolitical as in TW, e.g. Illinois, Canada doesn't match even though both names are in TW.
+- in general if a set of terms doesn't match, the finest (e.g. county) will be removed and a match attempted again, etc.
+- **Warning**: the result is essentially randomly chosen when there's more than one match (mainly an issue at the county level, so including *only* county is more likely to result in a bad match, e.g.).
+
+###### Require geographical area data origin
+Require that the matched Geographic Area come from a particular gazetteer.
+
+###### Only search for the finest geographical name provided
+Without this option, if your DwC fields are 'Duckville', 'Ontario', 'Canada' and TW doesn't have a 'Duckville' county in Ontario, then your fields will match to the next best Geographic Area, in this case Ontario, Canada. With the option turned on those fields would not match any Geographic Area in this case. (In general a match must match all provided geographic fields with correct geopolitical containments, whether or not this setting is on.)
+
+###### Require that the matched geographic area has a shape
+Exactly as stated (not all Geographic Areas in TW include a shape).
+
+###### Error if no geographic area with provided name exists
+If no Geographic Area in TW is matched, the row reports an error.
+
+##### Catalog number namespace mapping
+**A Row with a `catalogNumber` is marked NotReady until a namespace has been resolved for it.** See [details above](#catalognumber-details) for how to provide a namespace.
 
 
 ### Unmapped columns
@@ -496,11 +530,17 @@ You can augment your data after import with batch update functionality inside TW
 :::
 
 ### Occurrence Import FAQ (Frequently Asked Questions)
-#### When are names related to Taxon Determination auto-created?
+#### When are names related to Taxon Determination auto-created by an import?
 - If you set the `Restrict import to existing nomenclature only` option in Settings, then never. If this is not set, read on.
 - If you use the `TW:TaxonDetermination:otu_id` column to match to a name already present in TW, then never.
 - If you use the `scientificName` and individual rank columns above genus, those names will be created when not already present.
 - If you use the `higherClassification` column, only family-group names will be created as needed (higher rank names must match a rank column or an existing TW name).
+
+#### When are CollectingEvents auto-created by an import?
+- An existing Collecting Event is reused if it has an existing identifier matched by the row's [`eventID`](#eventid-details) and/or [`fieldNumber`](#fieldnumber-details) fields; otherwise a new one is created.
+
+
+#### When are Colle
 
 ## Drag and drop
 
