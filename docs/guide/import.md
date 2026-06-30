@@ -268,10 +268,10 @@ Preparing for an import follows the following general procedures:
 
 - [Map your data](/guide/import#map-your-data) (provide a column header) for each column of data to be imported
 - [Add TaxonWorks data to support your DwC import](/guide/import#add-taxonworks-data-to-support-your-dwc-occurrence-data-import) by creating records that will be used during the import process
-- [Configure Settings in the import task]() TODO
+- [Configure Settings in the import task](#configure-settings-in-the-import-task) 
 
 ::: tip
-As part of your process you may need to go back and forth between mapping and configuring
+As part of your process you may need to go back and forth between mapping, adding supporting TW data, and becoming familiar with supported import options
 :::
 
 #### Map your data
@@ -438,6 +438,27 @@ Think of Predicates as your custom column headers. Predicates are referenced in 
 ##### Biocuration classes
 
 Think of biocuration classes as custom attributes for your collection objects, things like 'male', 'pupa', or 'larva'. These let you assign values useful for your curation of your specimens in a controlled way, ensuring problems like 'M.', 'MALE', 'ale' don't happen in what might otherwise be a "Sex" field. [TODO: reference groups?]. This approach is used when your rows have only a few specific values across the dataset.
+
+### Configure Settings in the import task
+Click on `Settings` in the upper right of the import task for an occurrence dataset to view the settings panel for that import.
+
+#left[The settings panel](https://sfg.taxonworks.org/s/w8co44)
+
+##### Nomenclatural Code
+By default names created by the import are created under this code, but it can be overridden on a row-by-row basis using the `nomenclaturalCode` column.
+
+##### Containerize specimen with existing ones when catalog number already exists
+When processing a row, if the row has a catalog number that already exists on another collection object or container of collection objects, then the new collection object is combined with the existing one in a container or added to the existing container, and the catalog number is applied to the container instead of the objects in the container. Note you're required to supply a `recordNumber` in such a row so that the collection objects in a given container can still be uniquely identified.
+
+##### Restrict import to existing nomenclature only
+When checked, no new names will be created in TW. It's *not* necessarily true that a given name in the import must exactly match a name already in TW: whether this option is selected or not, we will sometimes attempt to match against multiple gender endings for a given name. If an import name can't be matched, the row is in error.
+
+#### Error records when computed identifier will not match eventID
+If you provide an `eventID` and the associated `TW:Namespace:EventID` provides a TW namespace, then the `eventID` must start with the short name of the namespace followed by its separator value. Apply this setting to check that your `eventID`s are all of the expected form.
+
+#### Error records when computed identifier will not match catalogNumber
+
+
 
 ### Unmapped columns
 
