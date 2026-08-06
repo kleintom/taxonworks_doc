@@ -2803,6 +2803,64 @@ The same ambiguous data as above, but with `scientificNameAuthorship` provided. 
 
 **Notes:** Row 1's TaxonDetermination correctly resolves to the `Mayr, 1862` species; row 2's to the `Emery` species &mdash; each matched via a different `subgenus`, despite neither row's `scientificName` mentioning a subgenus at all. No new TaxonNames are created for either row.
 
+###### scientificNameAuthorship with a typo matches no existing candidate
+
+Matching `scientificNameAuthorship` against an existing name's author is an exact string match, not a fuzzy one. A single-character typo is therefore indistinguishable from a genuinely different author: it does not match the intended candidate, and does not error either &mdash; it creates a new, unwanted homonym species instead.
+
+**Test spreadsheet:** [`scientific_name_author_typo.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/scientific_name_author_typo.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/scientific_name_author_typo.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonNames `Camponotus` (genus) &rarr; `Tanaemyrmex` (subgenus) &rarr; `americanus` (Mayr, 1862), and `Camponotus` &rarr; `Myrmentoma` (subgenus) &rarr; `americanus` (Emery, 1893).
+
+**Settings:** None (all defaults). See [Restrict import to existing nomenclature only](#restrict-import-to-existing-nomenclature-only) for how this same input is rejected instead, with that setting enabled.
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>scientificNameAuthorship</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Emory</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+::: warning
+`Emory` is a one-letter typo of the existing `Emery, 1893` species' author. A conforming importer cannot distinguish a typo from a genuinely new, different author on the same name &mdash; both are, correctly, treated as "no existing match," and a new species TaxonName `Camponotus americanus (Emory)` is created directly under the genus `Camponotus`, alongside the two pre-existing subgenus-nested species. This is the standard, intended behavior of unmatched-name handling (see [Minimum required fields](#minimum-required-fields)), not specific to this ambiguous-homonym scenario &mdash; it is called out here because a typo is easy to introduce and easy to miss precisely in cases like this one, where multiple identically-spelled species already exist.
+:::
+
+**Notes:** Verify author spelling carefully against the target project's existing nomenclature before import, particularly when multiple identically-spelled species already exist. Projects that want mismatches like this one rejected instead of silently creating a new name can enable [Restrict import to existing nomenclature only](#restrict-import-to-existing-nomenclature-only).
+
 #### Settings
 
 Each `Settings` toggle is documented here with the minimal data that makes it meaningful, and what's expected with the option off versus on.
@@ -2881,6 +2939,63 @@ Only meaningful for a row whose `catalogNumber` collides with an existing one an
 Row 2 errors with `catalogNumber: "Is already in use"` &mdash; a colliding `catalogNumber` with nothing to disambiguate it is rejected by default.
 
 **On:** with the setting enabled, row 2 above instead imports and is containerized alongside row 1 &mdash; that's the entire purpose of the setting, an opt-in trade-off: the two items end up sharing one `Container` with no `recordNumber` on either to tell them apart afterward. See [Containers &gt; containerize_dup_cat_no enabled, without a recordNumber](#containerize-dup-cat-no-enabled-without-a-recordnumber) for the full worked example.
+
+##### Restrict import to existing nomenclature only
+
+By default, a `scientificName` (with or without `scientificNameAuthorship`) that doesn't match any existing TaxonName creates a new one. With this setting enabled, importing is restricted to matching against nomenclature that already exists in the project: an unmatched name errors the row instead of creating anything.
+
+**Test spreadsheet:** [`scientific_name_author_typo.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/scientific_name_author_typo.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/scientific_name_author_typo.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonNames `Camponotus` (genus) &rarr; `Tanaemyrmex` (subgenus) &rarr; `americanus` (Mayr, 1862), and `Camponotus` &rarr; `Myrmentoma` (subgenus) &rarr; `americanus` (Emery, 1893).
+- The same row as [scientificNameAuthorship with a typo matches no existing candidate](#scientificnameauthorship-with-a-typo-matches-no-existing-candidate): `scientificName: "Camponotus americanus"`, `scientificNameAuthorship: "Emory"` &mdash; a typo of the existing `Emery, 1893` species, matching neither existing candidate.
+
+**Off (default):** the row imports, creating a new species TaxonName. See the full worked example at [scientificNameAuthorship with a typo matches no existing candidate](#scientificnameauthorship-with-a-typo-matches-no-existing-candidate).
+
+**On:**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>scientificNameAuthorship</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Emory</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+Row 1 errors with `scientificName: "Protonym americanus not found with that name and/or classification. Importing new names is disabled by import settings."` &mdash; no new TaxonName is created, and the pre-existing `Mayr, 1862` and `Emery, 1893` species are left untouched.
 
 ### Unmapped columns
 
