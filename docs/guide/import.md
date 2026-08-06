@@ -532,7 +532,9 @@ Each example follows the same template:
 - **The spreadsheet**, shown with a narrow blank column separating its input columns from a set of shaded outcome columns appended on the right. The `status` column uses the same colors as the row status in the importer's own UI (<span style="color: var(--color-import-imported); font-weight: 600;">Imported</span>, <span style="color: var(--color-import-errored); font-weight: 600;">Errored</span>, <span style="color: var(--color-import-not-ready); font-weight: 600;">NotReady</span>, <span style="color: var(--color-import-unsupported); font-weight: 600;">Unsupported</span>); the remaining outcome columns are counts of what got created (TaxonNames, CollectionObjects, TaxonDeterminations, etc., as relevant to the example) &mdash; so you can tell what happened at a glance, without reading prose.
 - **Notes** &mdash; anything about the outcome that doesn't reduce to a single column value (e.g. relationships between the records that got created).
 
-Examples are grouped the same way the term-mapping tables above are: [Record-level class](#record-level-class) first, then [Occurrence class](#occurrence-class), then Event class, and so on &mdash; plus a **Matching** group of its own for cross-cutting matching/disambiguation behavior (nomenclature matching, person matching, containerization, etc.) that doesn't belong to any single term.
+Examples are grouped the same way the term-mapping tables above are: [Record-level class](#record-level-class) first, then [Occurrence class](#occurrence-class), then Event class, and so on &mdash; plus a **Matching** group of its own for cross-cutting matching/disambiguation behavior (nomenclature matching, person matching, containerization, etc.) that doesn't belong to any single term, and a **Settings** group covering the DwC importer's `Settings` toggles.
+
+These examples describe how a conforming DwC occurrence importer is expected to behave, not necessarily everything about how this particular installation currently behaves. Where TaxonWorks is known to fall short of the behavior described, that's called out with a red **danger** notice rather than folded silently into the example as if it were correct.
 
 ::: tip
 The "locally" links below point at `http://localhost:4747/...`, a tiny static file server rooted at the taxonworks2 checkout (browsers block `http://` pages from linking directly to `file://` paths, so this is the workaround). Start it with `python3 -m http.server 4747 --bind 127.0.0.1` from the repo root. This is a personal dev convenience only, not required to read these docs.
@@ -601,7 +603,7 @@ There's a second, mutually exclusive minimal field set: replace `scientificName`
 
 **Input:**
 - OTU 900001, with an associated TaxonName (a species).
-- OTU 900002, with no associated TaxonName (a "nomenclature-less" OTU, e.g. `Otu.create!(name: 'Unidentified sp.')`).
+- OTU 900002, with no associated TaxonName (a "nomenclature-less" OTU &mdash; it has only a name of its own, e.g. `Unidentified sp.`).
 
 **Settings:** None (all defaults).
 
@@ -1001,11 +1003,15 @@ Yes &mdash; a second row reusing an `occurrenceID` already seen earlier in the s
 </tbody>
 </table>
 
-**Notes:** Row 2's error is `identifier: "spec-001 already taken"`. Row 2's CollectionObject and TaxonDetermination are created and then rolled back as part of failing the row (each row imports inside its own savepoint), so they never persist &mdash; hence 0, not 1, in those columns above. A second, secondary message (`identifier_object: "is invalid"`) also appears; it's a side effect of that rollback, not a separate problem to fix.
+**Notes:** Row 2's error is `identifier: "spec-001 already taken"`. Row 2's CollectionObject and TaxonDetermination never actually persist &mdash; the entire row is undone when it errors, hence 0, not 1, in those columns above.
+
+::: danger
+Row 2 also reports a second, spurious message: `identifier_object: "is invalid"`. This shouldn't be there &mdash; it's noise left over from how the rejection is currently implemented, not a second thing wrong with the row. Ignore it; the real problem is the one named above.
+:::
 
 ##### catalogNumber namespace mechanics
 
-A blank `catalogNumber` needs nothing. A `catalogNumber` paired with an explicit `TW:Namespace:catalogNumber` resolves immediately. A `catalogNumber` with neither that column nor an `institutionCode`/`collectionCode` mapping configured in `Settings` doesn't error &mdash; it stages as <span style="color: var(--color-import-not-ready); font-weight: 600;">NotReady</span> and stays that way until you resolve it. **NotReady rows aren't returned by `import()` at all** &mdash; they're simply excluded from processing (not attempted, not failed) until a namespace is set.
+A blank `catalogNumber` needs nothing. A `catalogNumber` paired with an explicit `TW:Namespace:catalogNumber` resolves immediately. A `catalogNumber` with neither that column nor an `institutionCode`/`collectionCode` mapping configured in `Settings` doesn't error &mdash; it stages as <span style="color: var(--color-import-not-ready); font-weight: 600;">NotReady</span> and stays that way until you resolve it. **NotReady rows are never included when the import is run** &mdash; they're simply excluded from processing (not attempted, not failed) until a namespace is set.
 
 **Test spreadsheet:** [`catalog_number_namespace.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/catalog_number_namespace.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/catalog_number_namespace.tsv">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
@@ -1041,7 +1047,7 @@ A blank `catalogNumber` needs nothing. A `catalogNumber` paired with an explicit
   <th class="outcome-header">Taxon<wbr>Names created</th>
   <th class="outcome-header">Collection<wbr>Objects created</th>
   <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Identifier::<wbr>CatalogNumber value</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
 </tr>
 </thead>
 <tbody>
@@ -1087,7 +1093,7 @@ A blank `catalogNumber` needs nothing. A `catalogNumber` paired with an explicit
 </tbody>
 </table>
 
-**Notes:** Row 3's `&mdash;` cells mean "never attempted," not "attempted and created zero" &mdash; `import()` only ever selects rows with status `Ready` (or, when retrying, `Errored`). Only row 2 creates an `Identifier::Local::CatalogNumber` (in namespace `ABC`); row 1 has no `catalogNumber` at all, so no identifier is created for it either. The identifier's value (`cached`) is the namespace's short name plus the `catalogNumber` value, joined by the namespace's delimiter.
+**Notes:** Row 3's `&mdash;` cells mean "never attempted," not "attempted and created zero" &mdash; only rows in a `Ready` (or, when retrying, `Errored`) state are ever processed by an import run. Only row 2 creates a CatalogNumber identifier (in namespace `ABC`); row 1 has no `catalogNumber` at all, so no identifier is created for it either. The identifier's value is the namespace's short name plus the `catalogNumber` value, joined by the namespace's delimiter.
 
 ##### recordNumber namespace mechanics
 
@@ -1127,7 +1133,7 @@ Unlike `catalogNumber`, a `recordNumber` with no way to resolve a namespace does
   <th class="outcome-header">Taxon<wbr>Names created</th>
   <th class="outcome-header">Collection<wbr>Objects created</th>
   <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Identifier::<wbr>RecordNumber value</th>
+  <th class="outcome-header">Record<wbr>Number value</th>
 </tr>
 </thead>
 <tbody>
@@ -1233,7 +1239,7 @@ Creates one unvetted `Person` per name, and always writes the raw column value i
 
 ##### individualCount
 
-`individualCount` sets `CollectionObject#total`. A blank value defaults to `1`. `1` creates a `Specimen`; anything greater creates a `Lot` instead. `0` or negative values error &mdash; currently via the underlying model validation rather than a dedicated importer check, which produces a somewhat confusing doubled-up message (tracked for improvement).
+`individualCount` is the total number of specimens the record represents. A blank value defaults to `1`. `1` creates a `Specimen`; anything greater creates a `Lot` instead. `0` or a negative value is not valid and must be rejected.
 
 **Test spreadsheet:** [`individual_count.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/individual_count.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/individual_count.tsv">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
@@ -1327,7 +1333,11 @@ Creates one unvetted `Person` per name, and always writes the raw column value i
 </tbody>
 </table>
 
-**Notes:** Rows 1 and 2 create a `Specimen`; row 3 creates a `Lot` (any `individualCount` &gt; 1 does). Rows 4 and 5 both error with `total: ["Must be positive.", "total must be > 1"]` &mdash; naming the internal `total` attribute rather than `individualCount`, and firing two overlapping model validations at once (`Lot` requires `> 1`, `CollectionObject` requires positive; `0` fails both).
+**Notes:** Rows 1 and 2 create a `Specimen`; row 3 creates a `Lot` (any `individualCount` &gt; 1 does). Rows 4 and 5 are correctly rejected.
+
+::: danger
+The rejection message for rows 4 and 5 is currently `total: ["Must be positive.", "total must be > 1"]` &mdash; it names the internal `total` field rather than `individualCount` (what you actually typed), and lists two overlapping complaints for the one value. It should instead name `individualCount` directly and say, plainly, that it can't be zero or negative.
+:::
 
 ##### sex
 
@@ -1476,13 +1486,16 @@ Cross-cutting matching/disambiguation behavior that doesn't belong to a single t
 
 ##### occurrenceID reused across separate imports
 
-A common real-world workflow: run an import, some rows error, fix the source file, re-run. Does re-running collide with the `occurrenceID`s that already imported successfully the first time? No &mdash; unlike a duplicate `occurrenceID` *within* one import (which errors, see [Occurrence](#occurrence) above), the same `occurrenceID` reused across two *separate* `ImportDataset`s doesn't collide at all, because each import gets its own freshly auto-created `occurrenceID` namespace (see [`occurrenceID` mapping](#occurrence-class)).
+A common real-world workflow: run an import, some rows error, fix the source file, re-run. Does re-running collide with the `occurrenceID`s that already imported successfully the first time? No &mdash; unlike a duplicate `occurrenceID` *within* one import (which errors, see [Occurrence](#occurrence) above), the same `occurrenceID` reused across two *separate* imports doesn't collide at all, because each import gets its own `occurrenceID` namespace (see [`occurrenceID` mapping](#occurrence-class)).
 
 **Test spreadsheet:** [`occurrence_id_reuse_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_a.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_a.tsv">locally</a>, [`occurrence_id_reuse_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_b.tsv">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
+Each row also has its own `catalogNumber` and `recordNumber` (differing between the two imports), to confirm reusing `occurrenceID` doesn't have knock-on effects for those other identifiers either &mdash; see [Duplicate catalogNumber](#duplicate-catalognumber) and [Duplicate recordNumber](#duplicate-recordnumber) below for what happens when *those* actually collide.
+
 **Input:**
-- A fresh project &mdash; no pre-existing nomenclature is required.
+- A Namespace with short name `CATD` (delimiter `NONE`), for `catalogNumber`.
+- A Namespace with short name `RECD` (delimiter `NONE`), for `recordNumber`.
 
 **Settings:** None (all defaults), for both imports.
 
@@ -1497,6 +1510,8 @@ A common real-world workflow: run an import, some rows error, fix the source fil
   <col style="width: 5em;">
   <col style="width: 5.5em;">
   <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
 </colgroup>
 <thead>
 <tr>
@@ -1509,6 +1524,8 @@ A common real-world workflow: run an import, some rows error, fix the source fil
   <th class="outcome-header">Taxon<wbr>Names created</th>
   <th class="outcome-header">Collection<wbr>Objects created</th>
   <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">Record<wbr>Number value</th>
 </tr>
 </thead>
 <tbody>
@@ -1522,6 +1539,8 @@ A common real-world workflow: run an import, some rows error, fix the source fil
   <td class="outcome-col">2</td>
   <td class="outcome-col">1</td>
   <td class="outcome-col">1</td>
+  <td class="outcome-col">CATD700</td>
+  <td class="outcome-col">RECDRA</td>
 </tr>
 <tr>
   <td>B</td>
@@ -1533,11 +1552,1063 @@ A common real-world workflow: run an import, some rows error, fix the source fil
   <td class="outcome-col">2</td>
   <td class="outcome-col">1</td>
   <td class="outcome-col">1</td>
+  <td class="outcome-col">CATD800</td>
+  <td class="outcome-col">RECDRB</td>
 </tr>
 </tbody>
 </table>
 
-**Notes:** Both rows use `occurrenceID: spec-shared`, but they're in two separate import datasets (two separate spreadsheets, `A` and `B`, run independently), each producing its own `Identifier` namespace &mdash; contrast with [Duplicate occurrenceID](#duplicate-occurrenceid), where the collision is specifically because both rows share one namespace by being in the *same* import.
+**Notes:** Both rows use `occurrenceID: spec-shared`, but they're in two separate import datasets (two separate spreadsheets, `A` and `B`, run independently), each producing its own `Identifier` namespace &mdash; contrast with [Duplicate occurrenceID](#duplicate-occurrenceid), where the collision is specifically because both rows share one namespace by being in the *same* import. `catalogNumber` and `recordNumber`, by contrast, use a real project Namespace you create yourself (not an auto-generated per-import one) &mdash; whether *those* collide across imports depends on whether their values actually collide, not on which import they came from. See below.
+
+##### catalogNumber namespace resolution via institutionCode/collectionCode
+
+Without an explicit `TW:Namespace:catalogNumber` column (see [catalogNumber namespace mechanics](#catalognumber-namespace-mechanics) above), a `catalogNumber`'s Namespace is instead resolved from `institutionCode`/`collectionCode`, matched against a mapping table configured through the DwC importer's `Settings` panel &mdash; not a spreadsheet column. Three mappings can be configured: `institutionCode` + `collectionCode` together (most specific), `collectionCode` alone, and `institutionCode` alone (its own distinct mapping, not a fallback that reuses the `collectionCode`-only one). When a row has both fields and both mappings are configured, the `institutionCode` + `collectionCode` mapping wins.
+
+**Test spreadsheet:** [`catalog_number_namespace_by_institution_collection_code.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/catalog_number_namespace_by_institution_collection_code.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/catalog_number_namespace_by_institution_collection_code.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `INHS`, delimiter `NONE`.
+- A Namespace with short name `GENERIC`, delimiter `NONE`.
+- A Repository with acronym `INHS` &mdash; `institutionCode` is independently matched against `Repository` acronyms too (see [Record-level class](#record-level-class)); without a matching Repository, a row with an `institutionCode` errors regardless of catalogNumber namespace resolution.
+
+**Settings:** the catalog number namespace mapping table configured with `collectionCode` `ENT` &rarr; Namespace `GENERIC`, `institutionCode` `INHS` + `collectionCode` `ENT` &rarr; Namespace `INHS`, and `institutionCode` `INHS` alone (no `collectionCode`) &rarr; Namespace `INHS`.
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>institutionCode</th>
+  <th>collectionCode</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td>INHS</td>
+  <td>ENT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">INHS100</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>200</td>
+  <td><em>(blank)</em></td>
+  <td>ENT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">GENERIC200</td>
+</tr>
+<tr>
+  <td>occ-c</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>300</td>
+  <td>INHS</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">INHS300</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1 resolves via the more specific `institutionCode` + `collectionCode` mapping (`INHS100`). Row 2 has no `institutionCode`, so that mapping doesn't apply to it &mdash; it falls back to the `collectionCode`-only mapping (`GENERIC200`). Row 3 has no `collectionCode` at all; it resolves via the separate `institutionCode`-alone mapping (`INHS300`) &mdash; not via row 2's `collectionCode`-only mapping, which requires a `collectionCode` value to match against.
+
+##### catalogNumber must match its computed identifier verbatim
+
+A namespace's short name plus a row's `catalogNumber` value together compute an identifier (e.g. Namespace `ABC` + `catalogNumber` `100` &rarr; `ABC100`). By default, the `catalogNumber` cell can be written with or without that prefix &mdash; both `100` and `ABC100` resolve to the same identifier. The `Error records when computed identifier will not match catalogNumber` setting tightens this: with it on, the cell value must already include the prefix exactly, or the row errors.
+
+**Test spreadsheet:** [`catalog_number_verbatim_match.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/catalog_number_verbatim_match.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/catalog_number_verbatim_match.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `ABC`, delimiter `NONE`.
+
+**Off (default):**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>TW:Namespace:catalogNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td>ABC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">ABC100</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>ABC200</td>
+  <td>ABC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">ABC200</td>
+</tr>
+</tbody>
+</table>
+
+Both the bare value (`100`) and the already-prefixed value (`ABC200`) import fine, computing to `ABC100` and `ABC200` respectively.
+
+**On:**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>TW:Namespace:catalogNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td>ABC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>ABC200</td>
+  <td>ABC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">ABC200</td>
+</tr>
+</tbody>
+</table>
+
+Row 1's error is `catalogNumber: "Computed catalog number ABC100 will not match verbatim 100. Verify the mapped namespace and namespace delimiter are correct."` Row 2 already included the prefix, so it's unaffected by the setting.
+
+##### Duplicate catalogNumber
+
+Unlike `occurrenceID`, `catalogNumber`'s Namespace is a real one you create and reuse on purpose (via `TW:Namespace:catalogNumber`, or an `institutionCode`/`collectionCode` mapping) &mdash; so a repeated `catalogNumber` value in that Namespace collides *whether or not* it's in the same import. Rows 1&ndash;2 below are one import (two rows); rows 3&ndash;4 are two separate imports (one row each) &mdash; both pairs behave identically.
+
+**Test spreadsheet:** [`duplicate_catalog_number_same_import.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_catalog_number_same_import.tsv), [`duplicate_catalog_number_import_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_catalog_number_import_a.tsv), [`duplicate_catalog_number_import_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_catalog_number_import_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `CAT`, delimiter `NONE`.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col style="width: 5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>import</th>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>TW:Namespace:catalogNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td rowspan="2">same<br>import</td>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td>CAT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT100</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>100</td>
+  <td>CAT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+<tr>
+  <td rowspan="2">separate<br>imports</td>
+  <td>occ-a1</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>200</td>
+  <td>CAT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT200</td>
+</tr>
+<tr>
+  <td>occ-b1</td>
+  <td>PreservedSpecimen</td>
+  <td>Schistocerca gregaria</td>
+  <td>200</td>
+  <td>CAT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Both second rows error with `catalogNumber: "Is already in use"`. See [Containers](#containers) below for what happens when a `recordNumber` is added to disambiguate instead of erroring.
+
+##### Duplicate recordNumber
+
+Same shape as above, but with the opposite outcome. A `recordNumber` value is not required to be unique &mdash; it represents a collector's own field number, which can legitimately repeat across different collectors or contexts. A repeated `recordNumber`, whether in the same import or a separate one, is expected to import without complaint, exactly like the two cases below.
+
+This holds even when a `recordNumber` is being used to disambiguate items that share a `catalogNumber`: nothing requires those `recordNumber`s to actually be distinct from each other either &mdash; see [Containers](#containers) below.
+
+**Test spreadsheet:** [`duplicate_record_number_same_import.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_record_number_same_import.tsv), [`duplicate_record_number_import_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_record_number_import_a.tsv), [`duplicate_record_number_import_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_record_number_import_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `REC`, delimiter `NONE`.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col style="width: 5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>import</th>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>recordNumber</th>
+  <th>TW:Namespace:recordNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Record<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td rowspan="2">same<br>import</td>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>300</td>
+  <td>REC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">REC300</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>300</td>
+  <td>REC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">REC300</td>
+</tr>
+<tr>
+  <td rowspan="2">separate<br>imports</td>
+  <td>occ-a1</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>400</td>
+  <td>REC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">REC400</td>
+</tr>
+<tr>
+  <td>occ-b1</td>
+  <td>PreservedSpecimen</td>
+  <td>Schistocerca gregaria</td>
+  <td>400</td>
+  <td>REC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">REC400</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** All four rows import; both pairs create two separate RecordNumber identifiers carrying the identical value. See [Containers](#containers) directly below for the one situation where a repeated `recordNumber` value is actually a problem.
+
+##### Containers
+
+`catalogNumber` collisions aren't always an error: if the colliding row also has a `recordNumber`, the importer merges the new CollectionObject into a `Container` with the earlier one instead of rejecting it &mdash; each item's `recordNumber` disambiguates it within the container. This is the intended way to import, say, a vial of several specimens logged as separate rows.
+
+A setting, `Containerize specimen with existing ones when catalog number already exists` (see [Settings](#settings) below), additionally allows containerizing a colliding `catalogNumber` when no `recordNumber` is present at all &mdash; a deliberate trade-off some projects want: the items placed in the container this way aren't individually identifiable by identifier afterward, though each remains its own separate record.
+
+`recordNumber` is allowed to repeat (see [Duplicate recordNumber](#duplicate-recordnumber) above), and that holds inside a container too: nothing requires the `recordNumber`s of items sharing a `catalogNumber` to actually be distinct from each other.
+
+**Test code (all scenarios below):** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+###### Same catalogNumber, different recordNumbers (the intended case)
+
+**Test spreadsheet:** [`container_different_record_numbers.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/container_different_record_numbers.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/container_different_record_numbers.tsv">locally</a>
+
+**Input:**
+- A Namespace with short name `CAT`, delimiter `NONE`.
+- A Namespace with short name `REC`, delimiter `NONE`.
+
+**Settings:** None (all defaults) &mdash; `Containerize specimen with existing ones when catalog number already exists` is **not** required when a `recordNumber` is present.
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>recordNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">Record<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>500</td>
+  <td>R1</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT500</td>
+  <td class="outcome-col">RECR1</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>500</td>
+  <td>R2</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT500</td>
+  <td class="outcome-col">RECR2</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** One CatalogNumber identifier (shared), two RecordNumber identifiers (`R1`, `R2`), one `Container` holding both CollectionObjects. This is the healthy, disambiguated case.
+
+###### Same catalogNumber, same recordNumber
+
+A row can reuse both the `catalogNumber` and the `recordNumber` of an item already in a container &mdash; for example, two specimens from the same collecting event (same `recordNumber`, i.e. the same field number) that end up placed in the same physical lot (same `catalogNumber`).
+
+**Test spreadsheet:** [`container_duplicate_record_number.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/container_duplicate_record_number.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/container_duplicate_record_number.tsv">locally</a>
+
+**Input:**
+- A Namespace with short name `CAT`, delimiter `NONE`.
+- A Namespace with short name `REC`, delimiter `NONE`.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>recordNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">Record<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>600</td>
+  <td>R1</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT600</td>
+  <td class="outcome-col">RECR1</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>600</td>
+  <td>R1</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT600</td>
+  <td class="outcome-col">RECR1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Both rows land in the same `Container`, and both RecordNumber identifiers carry the identical value `R1`. There's no way to distinguish the two items by identifier alone afterward &mdash; if that matters for your data, use distinct `recordNumber`s per item, as in the previous example.
+
+###### containerize_dup_cat_no enabled, without a recordNumber
+
+`Containerize specimen with existing ones when catalog number already exists` (see [Settings](#settings) below) lets a colliding `catalogNumber` containerize even when neither row has a `recordNumber` at all. This is the setting's whole purpose &mdash; without it, the same scenario errors instead (see [Duplicate catalogNumber](#duplicate-catalognumber) above).
+
+**Test spreadsheet:** [`container_no_record_number_setting_enabled.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/container_no_record_number_setting_enabled.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/container_no_record_number_setting_enabled.tsv">locally</a>
+
+**Input:**
+- A Namespace with short name `CAT`, delimiter `NONE`.
+
+**Settings:** `Containerize specimen with existing ones when catalog number already exists` enabled.
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>1100</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT1100</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>1100</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT1100</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Neither row has a `recordNumber`, yet both import and land in the same `Container` &mdash; zero RecordNumber identifiers are created. This is the trade-off of enabling the setting: the two items in the container aren't individually identifiable by identifier afterward, though each remains its own separate CollectionObject record.
+
+###### containerize_dup_cat_no enabled, without a recordNumber, across separate imports
+
+The same scenario as above, but as two separate imports rather than two rows in one import &mdash; behaves identically, since the setting, the Namespace, and the resulting `Container` are all ordinary project-level records with nothing tying them to a particular import.
+
+**Test spreadsheet:** [`container_no_record_number_setting_enabled_across_imports_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/container_no_record_number_setting_enabled_across_imports_a.tsv), [`container_no_record_number_setting_enabled_across_imports_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/container_no_record_number_setting_enabled_across_imports_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/">locally</a>
+
+**Input:**
+- A Namespace with short name `CAT`, delimiter `NONE`.
+
+**Settings:** `Containerize specimen with existing ones when catalog number already exists` enabled, for both imports.
+
+<table class="spec-table">
+<colgroup>
+  <col style="width: 3.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>import</th>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>A</td>
+  <td>occ-g1</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>1400</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT1400</td>
+</tr>
+<tr>
+  <td>B</td>
+  <td>occ-g2</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>1400</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT1400</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** One `Container` holds both CollectionObjects, exactly as in the same-import version, with zero RecordNumber identifiers created.
+
+###### Spanning separate imports
+
+The disambiguated (recordNumber-present) case from above works identically across two separate imports, not just within one &mdash; a container can grow every time you re-import into the same project.
+
+**Test spreadsheet:** [`container_spans_imports_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/container_spans_imports_a.tsv), [`container_spans_imports_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/container_spans_imports_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/">locally</a>
+
+**Input:**
+- A Namespace with short name `CAT`, delimiter `NONE`.
+- A Namespace with short name `REC`, delimiter `NONE`.
+
+**Settings:** None (all defaults), for both imports.
+
+<table class="spec-table">
+<colgroup>
+  <col style="width: 3.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>import</th>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>recordNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">Record<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>A</td>
+  <td>occ-e1</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>900</td>
+  <td>RE1</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT900</td>
+  <td class="outcome-col">RECRE1</td>
+</tr>
+<tr>
+  <td>B</td>
+  <td>occ-e2</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>900</td>
+  <td>RE2</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT900</td>
+  <td class="outcome-col">RECRE2</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** One `Container` holds both CollectionObjects, despite them coming from two entirely separate import runs. This is the intended, disambiguated version of cross-import containerization &mdash; both items keep distinct `recordNumber`s.
+
+###### Same catalogNumber, no recordNumber, across separate imports
+
+The rejection from [Duplicate catalogNumber](#duplicate-catalognumber) holds across imports too: without a `recordNumber`, a colliding `catalogNumber` is expected to error rather than silently containerize, even when the collision spans two separate import runs.
+
+**Test spreadsheet:** [`container_no_record_number_across_imports_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/container_no_record_number_across_imports_a.tsv), [`container_no_record_number_across_imports_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/container_no_record_number_across_imports_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/">locally</a>
+
+**Input:**
+- A Namespace with short name `CAT`, delimiter `NONE`.
+
+**Settings:** None (all defaults), for both imports.
+
+<table class="spec-table">
+<colgroup>
+  <col style="width: 3.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>import</th>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>A</td>
+  <td>occ-f1</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>1000</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT1000</td>
+</tr>
+<tr>
+  <td>B</td>
+  <td>occ-f2</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>1000</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Import B's row errors with `catalogNumber: "Is already in use"`, exactly as it would within a single import. No `Container` is created.
+
+###### recordNumber reused across unrelated catalogNumbers
+
+A `recordNumber` value repeated on rows with two genuinely *different* `catalogNumber` values doesn't trigger any containerization &mdash; containerization is driven entirely by a `catalogNumber` collision, never by `recordNumber` alone.
+
+**Test spreadsheet:** [`record_number_reused_across_catalog_numbers.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/record_number_reused_across_catalog_numbers.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/record_number_reused_across_catalog_numbers.tsv">locally</a>
+
+**Input:**
+- A Namespace with short name `CAT`, delimiter `NONE`.
+- A Namespace with short name `REC`, delimiter `NONE`.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>recordNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">Record<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>1200</td>
+  <td>RSAME</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT1200</td>
+  <td class="outcome-col">RECRSAME</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>1300</td>
+  <td>RSAME</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT1300</td>
+  <td class="outcome-col">RECRSAME</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Two separate CatalogNumber identifiers, no `Container`. Reusing a `recordNumber` by itself is harmless: containerization is driven only by a `catalogNumber` collision, and these two `catalogNumber` values genuinely differ. The row where both a `catalogNumber` *and* a `recordNumber` collide is the one documented above, under "Same catalogNumber, same recordNumber."
+
+#### Settings
+
+Each `Settings` toggle is documented here with the minimal data that makes it meaningful, and what's expected with the option off versus on.
+
+##### Containerize specimen with existing ones when catalog number already exists
+
+Only meaningful for a row whose `catalogNumber` collides with an existing one and which has no `recordNumber` &mdash; if a `recordNumber` is present, containerization already happens regardless of this setting (see [Containers](#containers)).
+
+**Test spreadsheet:** [`duplicate_catalog_number_same_import.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_catalog_number_same_import.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/duplicate_catalog_number_same_import.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `CAT`, delimiter `NONE`.
+
+**Off (default):**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>TW:Namespace:catalogNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Catalog<wbr>Number value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td>CAT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT100</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>100</td>
+  <td>CAT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+</tbody>
+</table>
+
+Row 2 errors with `catalogNumber: "Is already in use"` &mdash; a colliding `catalogNumber` with nothing to disambiguate it is rejected by default.
+
+**On:** with the setting enabled, row 2 above instead imports and is containerized alongside row 1 &mdash; that's the entire purpose of the setting, an opt-in trade-off: the two items end up sharing one `Container` with no `recordNumber` on either to tell them apart afterward. See [Containers &gt; containerize_dup_cat_no enabled, without a recordNumber](#containerize-dup-cat-no-enabled-without-a-recordnumber) for the full worked example.
 
 ### Unmapped columns
 
