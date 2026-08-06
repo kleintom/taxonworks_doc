@@ -521,6 +521,488 @@ If no Geographic Area in TW is matched, the row reports an error.
 **A Row with a `catalogNumber` is marked NotReady until a namespace has been resolved for it.** See [details above](#catalognumber-details) for how to provide a namespace.
 
 
+### Specification examples
+
+The examples below are "specification specs": each one pairs a minimal, single-purpose input file with an automated test asserting exactly what the importer does with it. They're generated directly from the TaxonWorks test suite, so if the importer's behavior ever changes, these examples (and their automated tests) will be updated together. This differs from the batch loader test files used elsewhere in TaxonWorks' test suite, which tend to be drawn from real (sometimes messy) production datasets and pin down bug fixes rather than illustrate one concept at a time.
+
+Each example follows the same template:
+- **Test spreadsheet** / **Test code** &mdash; links to the fixture file and to the RSpec context that asserts this example's behavior (GitHub, plus a local link &mdash; see tip below).
+- **Input** &mdash; what must already exist in the project's database before the import (beyond a fresh project) for the scenario to apply, one bullet per item.
+- **Settings** &mdash; the DwC importer `Settings` used, if any differ from the defaults.
+- **The spreadsheet**, shown with a narrow blank column separating its input columns from a set of shaded outcome columns appended on the right. The `status` column uses the same colors as the row status in the importer's own UI (<span style="color: var(--color-import-imported); font-weight: 600;">Imported</span>, <span style="color: var(--color-import-errored); font-weight: 600;">Errored</span>, <span style="color: var(--color-import-not-ready); font-weight: 600;">NotReady</span>, <span style="color: var(--color-import-unsupported); font-weight: 600;">Unsupported</span>); the remaining outcome columns are counts of what got created (TaxonNames, CollectionObjects, TaxonDeterminations, etc., as relevant to the example) &mdash; so you can tell what happened at a glance, without reading prose.
+- **Notes** &mdash; anything about the outcome that doesn't reduce to a single column value (e.g. relationships between the records that got created).
+
+Examples are grouped the same way the term-mapping tables above are: [Record-level class](#record-level-class) first, then [Occurrence class](#occurrence-class), then Event class, and so on &mdash; plus a **Matching** group of its own for cross-cutting matching/disambiguation behavior (nomenclature matching, person matching, containerization, etc.) that doesn't belong to any single term.
+
+::: tip
+The "locally" links below point at `http://localhost:4747/...`, a tiny static file server rooted at the taxonworks2 checkout (browsers block `http://` pages from linking directly to `file://` paths, so this is the workaround). Start it with `python3 -m http.server 4747 --bind 127.0.0.1` from the repo root. This is a personal dev convenience only, not required to read these docs.
+:::
+
+Fixture files: [on GitHub](https://github.com/SpeciesFileGroup/taxonworks/tree/development/spec/files/import_datasets/occurrences/specification) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification">locally</a>.
+Their automated assertions: [`occurrence_specification_spec.rb` on GitHub](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>.
+
+#### Minimum required fields
+
+The smallest file the importer will accept &mdash; just `occurrenceID`, `basisOfRecord`, and `scientificName`.
+
+**Test spreadsheet:** [`minimum_required_fields.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/minimum_required_fields.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/minimum_required_fields.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A fresh project &mdash; no pre-existing nomenclature is required.
+
+**Settings:** None (all defaults, so new nomenclature may be created).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Neither `Orotettix` (genus) nor `andeanus` (species) exist yet, so both TaxonNames are created, with the species nested under the genus. The TaxonDetermination links the new CollectionObject to the new species.
+
+#### Minimum required fields, matching by OTU instead
+
+There's a second, mutually exclusive minimal field set: replace `scientificName` with [`TW:TaxonDetermination:otu_id`](#taxon-class), which is matched to an already-existing OTU rather than to nomenclature. This is the recommended path for existing names &mdash; use the `Match OTU by Taxon Name` task in TW to build up the `otu_id`s to use beforehand. The OTU may or may not itself have an associated TaxonName; either way the TaxonDetermination is built directly from the OTU. No new TaxonNames are ever created via this path.
+
+**Test spreadsheet:** [`minimum_required_fields_otu_id.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/minimum_required_fields_otu_id.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/minimum_required_fields_otu_id.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- OTU 900001, with an associated TaxonName (a species).
+- OTU 900002, with no associated TaxonName (a "nomenclature-less" OTU, e.g. `Otu.create!(name: 'Unidentified sp.')`).
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>TW:TaxonDetermination:otu_id</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>900001</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-002</td>
+  <td>PreservedSpecimen</td>
+  <td>900002</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's TaxonDetermination uses OTU 900001 and (through it) its TaxonName. Row 2's TaxonDetermination uses OTU 900002 directly; its `otu.taxon_name` is `nil`, since that OTU has none. Providing `TW:TaxonDetermination:otu_id` makes all other Taxon class columns (`scientificName`, `taxonRank`, `kingdom`&hellip;) ignored if present &mdash; see [Taxon class](#taxon-class).
+
+#### Record level
+
+Covers the [Record-level class](#record-level-class) terms: `type`, `basisOfRecord`, and (a level down) the `BiocurationClass` that `basisOfRecord: FossilSpecimen` requires. `institutionCode` and `collectionCode` are also Record-level terms, but their *resolution* (matching a text value to a `Repository` or `Namespace`, including disambiguation when it's ambiguous) is covered under **Matching** instead &mdash; these two are kept here to the mechanics that don't involve matching.
+
+##### type defaults
+
+The [Record-level class](#record-level-class)'s other value-checked term. Like `basisOfRecord`, a blank `type` defaults to the one accepted value (`PhysicalObject`) rather than erroring. Unlike `basisOfRecord`, the match is case-sensitive and there's no GBIF-style reformatting &mdash; `physicalobject` is rejected exactly like any other unrecognized value.
+
+**Test spreadsheet:** [`type_defaults.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/type_defaults.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/type_defaults.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A fresh project &mdash; no pre-existing nomenclature is required.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>type</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-002</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>PhysicalObject</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-003</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>physicalobject</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+<tr>
+  <td>spec-004</td>
+  <td>PreservedSpecimen</td>
+  <td>Schistocerca gregaria</td>
+  <td>StillImage</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Rows 3 and 4 both get the same message: `type: "Only 'PhysicalObject' or empty allowed"`. Row 4's value, `StillImage`, isn't a typo or nonsense &mdash; it's a real term from the [DCMI Type Vocabulary](https://www.dublincore.org/specifications/dublin-core/dcmi-type-vocabulary/2010-10-11/) that `dwc:type` is defined against, and it's still rejected: TaxonWorks only accepts the one term meaningful for vouchered specimen records.
+
+##### basisOfRecord defaults
+
+`basisOfRecord` must be present as a column (it's in the [required field set](#occurrence-data)), but the cell value itself may be blank &mdash; a blank cell defaults to `PreservedSpecimen`, matched case-insensitively, and GBIF's `SCREAMING_SNAKE_CASE` occurrence-download variants (`PRESERVED_SPECIMEN`, `FOSSIL_SPECIMEN`) are reformatted and accepted too. Anything else errors, naming the field.
+
+**Test spreadsheet:** [`basis_of_record_defaults.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/basis_of_record_defaults.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/basis_of_record_defaults.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A fresh project &mdash; no pre-existing nomenclature is required.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td><em>(blank)</em></td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-002</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-003</td>
+  <td>PRESERVED_SPECIMEN</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-004</td>
+  <td>preservedspecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-005</td>
+  <td>Foo</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Rows 2&ndash;4 create no new TaxonNames because row 1 already created `Orotettix andeanus`; every row after the first just reuses it (a `scientificName` reuse detail, not specific to `basisOfRecord`). Row 5's error is `basisOfRecord: "Only 'PreservedSpecimen', 'FossilSpecimen' or blank is allowed."`. `FossilSpecimen` (and its GBIF variant) is accepted too, but requires a `BiocurationClass` already present in the project &mdash; covered next.
+
+##### FossilSpecimen, without the biocuration class present
+
+`FossilSpecimen` needs one specific thing to already exist in the project: a `BiocurationClass` whose `uri` is `http://rs.tdwg.org/dwc/terms/FossilSpecimen`. Without it, the row errors rather than silently falling back to `PreservedSpecimen` or skipping the classification.
+
+**Test spreadsheet:** [`fossil_specimen.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/fossil_specimen.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/fossil_specimen.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A fresh project &mdash; no `BiocurationClass` with the DwC fossil URI, no pre-existing nomenclature.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>FossilSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The error is `basisOfRecord: "Biocuration class http://rs.tdwg.org/dwc/terms/FossilSpecimen is not present in project"`. This check runs before anything else in the row, so nothing is created &mdash; not even the TaxonNames that would otherwise come from `scientificName`.
+
+##### FossilSpecimen, with the biocuration class present
+
+Same spreadsheet as above, but the project already has the required `BiocurationClass`.
+
+**Test spreadsheet:** [`fossil_specimen.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/fossil_specimen.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/fossil_specimen.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A `BiocurationClass` with `uri` `http://rs.tdwg.org/dwc/terms/FossilSpecimen` (any name).
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>FossilSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The CollectionObject is classified with the matching `BiocurationClass` &mdash; the row's `basisOfRecord: FossilSpecimen` becomes a biocuration classification, not a separate field on the record.
+
+#### Occurrence
+
+Covers the [Occurrence class](#occurrence-class) terms: `occurrenceID`, `catalogNumber`, `recordNumber`, `recordedBy`, `individualCount`, `sex`, `preparations`. As with Record level, the *matching/disambiguation* parts of some of these terms (which `Namespace` a `catalogNumber` resolves to, containerizing rows that share a `catalogNumber`, reusing an existing `Person` for `recordedBy`) are covered under **Matching** instead.
+
+##### Duplicate occurrenceID
+
+Yes &mdash; a second row reusing an `occurrenceID` already seen earlier in the same import errors, even if every other field is otherwise valid. `occurrenceID` is assigned as an identifier in a namespace that's auto-created once per import dataset (see [`occurrenceID` mapping](#occurrence-class)) and shared by every row in the file, so a repeat value collides with the row that used it first.
+
+**Test spreadsheet:** [`duplicate_occurrence_id.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_occurrence_id.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/duplicate_occurrence_id.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A fresh project &mdash; no pre-existing nomenclature is required.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 2's error is `identifier: "spec-001 already taken"`. Row 2's CollectionObject and TaxonDetermination are created and then rolled back as part of failing the row (each row imports inside its own savepoint), so they never persist &mdash; hence 0, not 1, in those columns above. A second, secondary message (`identifier_object: "is invalid"`) also appears; it's a side effect of that rollback, not a separate problem to fix.
+
 ### Unmapped columns
 
 Column headers that can't be linked via one of the 3 mechanisms are ignored during the import process. This means it's important to do some trial runs in a sandbox, or with a smaller dataset to see that your values are mapping over. The `Browse collection object` task is a good place to check this.

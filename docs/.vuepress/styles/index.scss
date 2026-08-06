@@ -1,3 +1,64 @@
+// Mirrors the TaxonWorks DwC importer's own row-status colors
+// (app/javascript/vue/tasks/dwca_import/app.vue, --color-import-*),
+// so docs examples read the same as the actual import task UI.
+:root {
+  --color-import-imported: blue;
+  --color-import-ready: green;
+  --color-import-not-ready: black;
+  --color-import-errored: red;
+  --color-import-failed: orange;
+  --color-import-unsupported: brown;
+}
+
+:root[data-theme='dark'] {
+  --color-import-imported: #2b7fff;
+  --color-import-ready: green;
+  --color-import-not-ready: #bcbcbc;
+  --color-import-errored: #c43535;
+  --color-import-failed: orange;
+  --color-import-unsupported: #bb4d00;
+}
+
+// Specification example tables (spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb):
+// input columns (the spreadsheet as-is) are followed by a narrow blank
+// spacer, then shaded "outcome" columns showing what the importer did.
+// --vp-c-bg-alt is already used for the default odd-row zebra stripe, so
+// outcome cells use the brand accent tokens instead to actually stand out.
+.spec-table {
+  // Tighter than the theme default (.6em 1em) so 8+ narrow columns fit
+  // without horizontal scrolling.
+  th,
+  td {
+    padding: 0.45em 0.5em;
+  }
+
+  .col-spacer {
+    width: 1em;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  th.outcome-header,
+  td.outcome-col {
+    // Headers like "CollectionObjects created" are, to the browser, one
+    // unbreakable word (no spaces/hyphens) and so force the column wide
+    // enough to fit on one line unless wrapping is explicitly allowed.
+    // The markup also places <wbr> at the natural word boundary so the
+    // wrap point is a readable one rather than an arbitrary mid-word cut.
+    overflow-wrap: anywhere;
+  }
+
+  th.outcome-header {
+    background: var(--vp-c-accent-bg);
+    color: var(--vp-c-accent-text);
+  }
+
+  td.outcome-col {
+    background: var(--vp-c-accent-soft);
+  }
+}
+
 .figure-left {
   text-align: left;
 }
