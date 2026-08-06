@@ -1003,6 +1003,542 @@ Yes &mdash; a second row reusing an `occurrenceID` already seen earlier in the s
 
 **Notes:** Row 2's error is `identifier: "spec-001 already taken"`. Row 2's CollectionObject and TaxonDetermination are created and then rolled back as part of failing the row (each row imports inside its own savepoint), so they never persist &mdash; hence 0, not 1, in those columns above. A second, secondary message (`identifier_object: "is invalid"`) also appears; it's a side effect of that rollback, not a separate problem to fix.
 
+##### catalogNumber namespace mechanics
+
+A blank `catalogNumber` needs nothing. A `catalogNumber` paired with an explicit `TW:Namespace:catalogNumber` resolves immediately. A `catalogNumber` with neither that column nor an `institutionCode`/`collectionCode` mapping configured in `Settings` doesn't error &mdash; it stages as <span style="color: var(--color-import-not-ready); font-weight: 600;">NotReady</span> and stays that way until you resolve it. **NotReady rows aren't returned by `import()` at all** &mdash; they're simply excluded from processing (not attempted, not failed) until a namespace is set.
+
+**Test spreadsheet:** [`catalog_number_namespace.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/catalog_number_namespace.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/catalog_number_namespace.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `ABC` and delimiter `NONE` (so the computed identifier reads as `ABC123`, not `ABC 123` &mdash; see [Namespaces](#namespaces)).
+
+**Settings:** None (all defaults) &mdash; no `institutionCode`/`collectionCode` &rarr; Namespace mapping configured.
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>TW:Namespace:catalogNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Identifier::<wbr>CatalogNumber value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td><em>(blank)</em></td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+<tr>
+  <td>spec-002</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>123</td>
+  <td>ABC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">ABC123</td>
+</tr>
+<tr>
+  <td>spec-003</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>456</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-not-ready); font-weight: 600;">NotReady</span></td>
+  <td class="outcome-col">&mdash;</td>
+  <td class="outcome-col">&mdash;</td>
+  <td class="outcome-col">&mdash;</td>
+  <td class="outcome-col">&mdash;</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 3's `&mdash;` cells mean "never attempted," not "attempted and created zero" &mdash; `import()` only ever selects rows with status `Ready` (or, when retrying, `Errored`). Only row 2 creates an `Identifier::Local::CatalogNumber` (in namespace `ABC`); row 1 has no `catalogNumber` at all, so no identifier is created for it either. The identifier's value (`cached`) is the namespace's short name plus the `catalogNumber` value, joined by the namespace's delimiter.
+
+##### recordNumber namespace mechanics
+
+Unlike `catalogNumber`, a `recordNumber` with no way to resolve a namespace doesn't stage as NotReady &mdash; it errors outright at import time, because (unlike `catalogNumber`) there's no `institutionCode`/`collectionCode`-based fallback mapping for `recordNumber`: the `TW:Namespace:recordNumber` column is the only path.
+
+**Test spreadsheet:** [`record_number_namespace.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/record_number_namespace.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/record_number_namespace.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `DEF` and delimiter `NONE` (so the computed identifier reads as `DEF222`, not `DEF 222` &mdash; see [Namespaces](#namespaces)).
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>recordNumber</th>
+  <th>TW:Namespace:recordNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Identifier::<wbr>RecordNumber value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>111</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+<tr>
+  <td>spec-002</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>222</td>
+  <td>DEF</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">DEF222</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's error is on `TW:Namespace:recordNumber: "Namespace not found"` &mdash; named for the companion column, not `recordNumber` itself.
+
+##### recordedBy
+
+Creates one unvetted `Person` per name, and always writes the raw column value into `verbatim_collectors` regardless of how many names it parses into. Names are separated with `" | "` &mdash; the same pipe-list convention used across several DwC terms in this importer (e.g. `identifiedBy`).
+
+**Test spreadsheet:** [`recorded_by.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/recorded_by.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/recorded_by.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A fresh project &mdash; no pre-existing People.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 4.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>recordedBy</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">People created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>Jane Smith</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-002</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>John Doe | Mary Jones</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">2</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** All 3 People created are `Person::Unvetted`. Row 2's `verbatim_collectors` is stored as the full raw string `"John Doe | Mary Jones"`, not split.
+
+##### individualCount
+
+`individualCount` sets `CollectionObject#total`. A blank value defaults to `1`. `1` creates a `Specimen`; anything greater creates a `Lot` instead. `0` or negative values error &mdash; currently via the underlying model validation rather than a dedicated importer check, which produces a somewhat confusing doubled-up message (tracked for improvement).
+
+**Test spreadsheet:** [`individual_count.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/individual_count.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/individual_count.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A fresh project &mdash; no pre-existing nomenclature is required.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>individualCount</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-002</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>1</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-003</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>5</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-004</td>
+  <td>PreservedSpecimen</td>
+  <td>Schistocerca gregaria</td>
+  <td>0</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+<tr>
+  <td>spec-005</td>
+  <td>PreservedSpecimen</td>
+  <td>Locusta migratoria</td>
+  <td>-1</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Rows 1 and 2 create a `Specimen`; row 3 creates a `Lot` (any `individualCount` &gt; 1 does). Rows 4 and 5 both error with `total: ["Must be positive.", "total must be > 1"]` &mdash; naming the internal `total` attribute rather than `individualCount`, and firing two overlapping model validations at once (`Lot` requires `> 1`, `CollectionObject` requires positive; `0` fails both).
+
+##### sex
+
+Unlike `basisOfRecord: FossilSpecimen`'s `BiocurationClass`, `sex` doesn't require anything to pre-exist: an unrecognized value **auto-creates** a `BiocurationGroup` named "Sex" (first time only) and a `BiocurationClass` for that value. A repeated value reuses the same class (matched case-insensitively) rather than duplicating it. The one hard restriction: a `sex` value may only be a single word.
+
+**Test spreadsheet:** [`sex.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/sex.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/sex.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A fresh project &mdash; no pre-existing "Sex" BiocurationGroup or BiocurationClass.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>sex</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>male</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-002</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>male</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-003</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>unknown sex</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** After row 1, exactly one `BiocurationGroup` ("Sex", `uri: http://rs.tdwg.org/dwc/terms/sex`) and one `BiocurationClass` ("male") exist; row 2 reuses both rather than creating duplicates. Row 3's error is `sex: "Only single-word controlled vocabulary supported at this time."`.
+
+##### preparations
+
+The mirror image of `sex`: `preparations` must match an existing `PreparationType` by name (case-insensitively) &mdash; nothing is auto-created. This is issue [#4883](https://github.com/SpeciesFileGroup/taxonworks/issues/4883) row 13.
+
+**Test spreadsheet:** [`preparations.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/preparations.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/preparations.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A PreparationType named `pinned`.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>preparations</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>pinned</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-002</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>spread</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 2's error is `preparations: "Unknown preparation \"spread\". If it is correct please add it to preparation types and retry."` No new `PreparationType` is created &mdash; only 1 exists after import (the pre-existing `pinned`), not 2.
+
+#### Matching
+
+Cross-cutting matching/disambiguation behavior that doesn't belong to a single term &mdash; how the importer decides "is this the same thing I've already seen, or something new." As more of these accumulate, expect this group to grow its own Record-level/Occurrence/Event-class subdivisions the same way the sections above did; for now there's one.
+
+##### occurrenceID reused across separate imports
+
+A common real-world workflow: run an import, some rows error, fix the source file, re-run. Does re-running collide with the `occurrenceID`s that already imported successfully the first time? No &mdash; unlike a duplicate `occurrenceID` *within* one import (which errors, see [Occurrence](#occurrence) above), the same `occurrenceID` reused across two *separate* `ImportDataset`s doesn't collide at all, because each import gets its own freshly auto-created `occurrenceID` namespace (see [`occurrenceID` mapping](#occurrence-class)).
+
+**Test spreadsheet:** [`occurrence_id_reuse_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_a.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_a.tsv">locally</a>, [`occurrence_id_reuse_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_b.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A fresh project &mdash; no pre-existing nomenclature is required.
+
+**Settings:** None (all defaults), for both imports.
+
+<table class="spec-table">
+<colgroup>
+  <col style="width: 3.5em;">
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>import</th>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>A</td>
+  <td>spec-shared</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>B</td>
+  <td>spec-shared</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Both rows use `occurrenceID: spec-shared`, but they're in two separate import datasets (two separate spreadsheets, `A` and `B`, run independently), each producing its own `Identifier` namespace &mdash; contrast with [Duplicate occurrenceID](#duplicate-occurrenceid), where the collision is specifically because both rows share one namespace by being in the *same* import.
+
 ### Unmapped columns
 
 Column headers that can't be linked via one of the 3 mechanisms are ignored during the import process. This means it's important to do some trial runs in a sandbox, or with a smaller dataset to see that your values are mapping over. The `Browse collection object` task is a good place to check this.
