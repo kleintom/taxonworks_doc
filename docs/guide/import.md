@@ -366,7 +366,7 @@ Of the terms described below, your occurrence import file is required to provide
   - option 3: if left empty, the importer assigns a dataset-specific namespace with a synthetic name that you can later change.
 In cases 2 and 3 an `Identifier::Local::Event` is created.
 - If you select the `Error records when computed identifier will not match eventID` setting then your `eventID` value *must* include its namespaced short name prefix (e.g. `abc123`, not just `123`). If that option is not selected then you can write your identifier value with or without its namespace prefix.
-- _When an existing TW Collecting Event already has the identifier you define in this way, the importer re-uses it and all other event-related data is ignored._ 
+- _When an existing TW Collecting Event already has the identifier you define in this way, the importer re-uses it and all other event-related data is ignored (provided `fieldNumber`, if present, resolves to the same Collecting Event)._
 - If a Collecting Event is already matched by `fieldNumber`, this identifier must match the same Collecting Event, otherwise the importer will reject the record.
 
 
@@ -374,7 +374,7 @@ In cases 2 and 3 an `Identifier::Local::Event` is created.
 
 - If not empty, then the short name of the Namespace to use with the identifier is required to be in a TW-specific column named `TW:Namespace:FieldNumber`. 
   - Do not include namespace prefix with your `fieldNumber` value, e.g. if your namespace short name is 'abc' then `fieldNumber` should be '123', not 'abc123'.
-- _When an existing Collecting Event already has this identifier, the importer re-uses it and all other event-related data is ignored._
+- _When an existing Collecting Event already has this identifier, the importer re-uses it and all other event-related data is ignored (provided `eventID`, if present, resolves to the same Collecting Event)._
 - If a Collecting Event is already matched by `eventID`, this identifier must match the same Collecting Event, otherwise the importer will reject the record. 
 
 ##### Identification class
@@ -530,17 +530,19 @@ You can augment your data after import with batch update functionality inside TW
 :::
 
 ### Occurrence Import FAQ (Frequently Asked Questions)
+
+#### When are CollectionObjects auto-created by an import?
+- Always. Every imported row creates a single new Collection Object: a Specimen if `individualCount` is 1, otherwise a Lot.
+
+#### When are CollectingEvents auto-created by an import?
+- An existing Collecting Event is reused if it has an existing identifier matched by the row's [`eventID`](#eventid-details) and/or [`fieldNumber`](#fieldnumber-details) fields; otherwise a new one is created.
+
 #### When are names related to Taxon Determination auto-created by an import?
 - If you set the `Restrict import to existing nomenclature only` option in Settings, then never. If this is not set, read on.
 - If you use the `TW:TaxonDetermination:otu_id` column to match to a name already present in TW, then never.
 - If you use the `scientificName` and individual rank columns above genus, those names will be created when not already present.
 - If you use the `higherClassification` column, only family-group names will be created as needed (higher rank names must match a rank column or an existing TW name).
 
-#### When are CollectingEvents auto-created by an import?
-- An existing Collecting Event is reused if it has an existing identifier matched by the row's [`eventID`](#eventid-details) and/or [`fieldNumber`](#fieldnumber-details) fields; otherwise a new one is created.
-
-
-#### When are Colle
 
 ## Drag and drop
 
