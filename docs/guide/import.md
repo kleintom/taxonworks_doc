@@ -2531,6 +2531,278 @@ A `recordNumber` value repeated on rows with two genuinely *different* `catalogN
 
 **Notes:** Two separate CatalogNumber identifiers, no `Container`. Reusing a `recordNumber` by itself is harmless: containerization is driven only by a `catalogNumber` collision, and these two `catalogNumber` values genuinely differ. The row where both a `catalogNumber` *and* a `recordNumber` collide is the one documented above, under "Same catalogNumber, same recordNumber."
 
+##### Name matching
+
+How the importer decides a row's `scientificName` refers to a TaxonName it's already created (or that already existed), rather than creating a duplicate. Starting with the simplest possible case; expect this group to grow, since nomenclature matching is the most involved part of the importer.
+
+###### Same scientificName imported twice
+
+**Test spreadsheet:** [`scientific_name_matched_same_import.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/scientific_name_matched_same_import.tsv), [`scientific_name_matched_import_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/scientific_name_matched_import_a.tsv), [`scientific_name_matched_import_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/scientific_name_matched_import_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A fresh project &mdash; no pre-existing nomenclature is required.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col style="width: 5em;">
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>import</th>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td rowspan="2">same<br>import</td>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td rowspan="2">separate<br>imports</td>
+  <td>occ-a1</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>occ-b1</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The first row (or first import) creates the `Orotettix` genus and `andeanus` species TaxonNames. The second row (or second import) matches both rather than creating duplicates &mdash; 0 TaxonNames created, and both CollectionObjects' TaxonDeterminations reference the same species TaxonName. This holds identically whether the two rows are in the same import or two separate imports, since TaxonNames, like Namespaces and Identifiers, are ordinary project-level records with nothing tying them to a particular import.
+
+###### scientificName already exists in the project
+
+The same matching applies when the genus and species already existed before the import even started &mdash; entered by a curator directly, or from an earlier, unrelated import. This is the same [minimum required fields](#minimum-required-fields) example, but with the nomenclature already in place.
+
+**Test spreadsheet:** [`minimum_required_fields.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/minimum_required_fields.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/minimum_required_fields.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonNames `Orotettix` (genus) and `andeanus` (species), already present.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Compare with [Minimum required fields](#minimum-required-fields) above, where the identical spreadsheet creates 2 new TaxonNames in a fresh project. Here, the row's TaxonDetermination references the pre-existing species TaxonName directly &mdash; matching happens the same way whether the name was created moments earlier by this same importer or already existed beforehand.
+
+###### scientificName omits a subgenus present in the project
+
+A `scientificName` doesn't have to spell out every rank to match. If the project already has the species placed under a subgenus (`Genus (Subgenus) species`), a `scientificName` giving just `Genus species` &mdash; omitting the subgenus &mdash; still matches it.
+
+**Test spreadsheet:** [`scientific_name_missing_subgenus.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/scientific_name_missing_subgenus.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/scientific_name_missing_subgenus.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonNames `Camponotus` (genus) &rarr; `Tanaemyrmex` (subgenus) &rarr; `americanus` (species), already present.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** No new TaxonNames are created &mdash; the row's TaxonDetermination matches straight through to `americanus`, nested under `Tanaemyrmex`. This example has only one subgenus to consider; when a genus has *multiple* subgenera and more than one contains a same-named species, matching this way can become ambiguous &mdash; see next.
+
+###### Ambiguous subgenus homonym, no disambiguating information
+
+If a genus has two subgenera that each contain a species with the identical name (e.g. `Camponotus (Tanaemyrmex) americanus (Mayr, 1862)` and `Camponotus (Myrmentoma) americanus (Emery, 1893)`), a `scientificName` of just `Camponotus americanus`, with nothing to tell the two apart, is ambiguous. It's expected to error, naming the candidates.
+
+::: danger
+TaxonWorks does not currently do this. Instead, the row imports successfully, and its TaxonDetermination silently matches the bare genus (`Camponotus`) &mdash; not either species, and not even the subgenus. Nothing in the row's status or messages indicates that anything was lost; the only sign is that the determination is coarser than the `scientificName` you provided. If you're relying on species-level determinations, this is worth checking for directly (e.g. reviewing determinations left at genus rank) rather than assuming an `Imported` status means the full name resolved.
+:::
+
+**Test spreadsheet:** [`scientific_name_ambiguous_subgenus_homonym.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/scientific_name_ambiguous_subgenus_homonym.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/scientific_name_ambiguous_subgenus_homonym.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonNames `Camponotus` (genus) &rarr; `Tanaemyrmex` (subgenus) &rarr; `americanus` (Mayr, 1862), and `Camponotus` &rarr; `Myrmentoma` (subgenus) &rarr; `americanus` (Emery, 1893).
+
+**Settings:** None (all defaults).
+
+See [next](#ambiguous-subgenus-homonym-disambiguated-by-scientificnameauthorship) for how providing `scientificNameAuthorship` resolves this same ambiguous data correctly.
+
+###### Ambiguous subgenus homonym, disambiguated by scientificNameAuthorship
+
+The same ambiguous data as above, but with `scientificNameAuthorship` provided. It can include just the author (`Emery`), or the author and year together (`Mayr, 1862`) &mdash; either is enough to disambiguate here, since the two candidate species have different authors.
+
+**Test spreadsheet:** [`scientific_name_disambiguated_by_author_year.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/scientific_name_disambiguated_by_author_year.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/scientific_name_disambiguated_by_author_year.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonNames `Camponotus` (genus) &rarr; `Tanaemyrmex` (subgenus) &rarr; `americanus` (Mayr, 1862), and `Camponotus` &rarr; `Myrmentoma` (subgenus) &rarr; `americanus` (Emery, 1893).
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>scientificNameAuthorship</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Mayr, 1862</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Emery</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's TaxonDetermination correctly resolves to the `Mayr, 1862` species; row 2's to the `Emery` species &mdash; each matched via a different `subgenus`, despite neither row's `scientificName` mentioning a subgenus at all. No new TaxonNames are created for either row.
+
 #### Settings
 
 Each `Settings` toggle is documented here with the minimal data that makes it meaningful, and what's expected with the option off versus on.
