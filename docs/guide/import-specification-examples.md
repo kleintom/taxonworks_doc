@@ -813,7 +813,7 @@ Unlike `catalogNumber`, a `recordNumber` with no way to resolve a namespace does
 
 ### recordNumber given with its namespace prefix already included
 
-A `recordNumber` value is expected without its namespace's short-name prefix (see [details above](/guide/import#recordnumber-details)) &mdash; the prefix is added when computing the identifier, not stripped from what you provide. A value that already includes it is expected to be rejected, naming the mismatch, the same way [catalogNumber](#catalognumber-must-match-its-computed-identifier-verbatim) and [eventID](#eventid-must-match-its-computed-identifier-verbatim) reject a verbatim mismatch when their respective settings are enabled.
+A `recordNumber` value is expected without its namespace's short-name prefix (see [details above](/guide/import#recordnumber-details)) &mdash; the prefix is added when computing the identifier, not stripped from what you provide. A value that already includes it is expected to be rejected, naming the mismatch, the same way [catalogNumber](#error-records-when-computed-identifier-will-not-match-catalognumber) and [eventID](#error-records-when-computed-identifier-will-not-match-eventid) reject a verbatim mismatch when their respective settings are enabled (see [Settings](#settings)).
 
 ::: warning
 TaxonWorks does not currently do this. `recordNumber: "DEF222"` in a Namespace `DEF` (delimiter `NONE`) &mdash; already including the prefix &mdash; imports successfully and computes an identifier of `DEFDEF222`: the prefix applied a second time, on top of the one already in the value. There is no setting that catches this, unlike `catalogNumber`/`eventID`, which are either tolerant of a given prefix by default or can be set to reject a mismatch explicitly. If a `recordNumber`-based identifier looks like it starts with its own namespace's short name twice, this is why.
@@ -1871,133 +1871,7 @@ Geographic Location terms only apply when a row creates a *new* CollectingEvent 
 
 **Notes:** The row's CollectingEvent is linked to the county-level GeographicArea, the most specific of the three terms provided.
 
-#### country, stateProvince, county: recursive fallback vs. exact match only
-
-If the full combination of `county` + `stateProvince` + `country` doesn't match any GeographicArea, the finest term (`county`) is dropped and the remaining combination is tried again, and so on, until either something matches or no terms are left. The `Only search for the finest geographical name provided` setting turns this fallback off, requiring the full combination given to match exactly.
-
-**Test spreadsheet:** [`geographic_area_recursive_fallback.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/geographic_area_recursive_fallback.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/geographic_area_recursive_fallback.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/geographic_area_recursive_fallback.tsv">locally</a><br>
-**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
-
-**Input:**
-- GeographicAreas `Champaign` (county) &rarr; `Illinois` (state) &rarr; `United States` (country). The row's `county` value (`Nonexistent County`) matches none of them.
-
-**Off (default):**
-
-<table class="spec-table">
-<colgroup>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col style="width: 1em;">
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-</colgroup>
-<thead>
-<tr>
-  <th>occurrenceID</th>
-  <th>basisOfRecord</th>
-  <th>scientificName</th>
-  <th>country</th>
-  <th>stateProvince</th>
-  <th>county</th>
-  <th class="col-spacer">&nbsp;</th>
-  <th class="outcome-header">status</th>
-  <th class="outcome-header">TaxonNames created</th>
-  <th class="outcome-header">CollectionObjects created</th>
-  <th class="outcome-header">TaxonDeterminations created</th>
-  <th class="outcome-header">GeographicArea matched</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>occ-a</td>
-  <td>PreservedSpecimen</td>
-  <td>Orotettix andeanus</td>
-  <td>United States</td>
-  <td>Illinois</td>
-  <td>Nonexistent County</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">Illinois</td>
-</tr>
-</tbody>
-</table>
-
-`county` doesn't match, so it's dropped and `stateProvince` + `country` is tried, matching `Illinois`.
-
-**On:** with the setting enabled, the same row instead imports with no GeographicArea matched at all &mdash; the full `county` + `stateProvince` + `country` combination is tried exactly once, and since it doesn't match, nothing is matched. This isn't an error by itself; see the next section for the setting that makes an unmatched combination an error.
-
-#### Error if no geographic area with the provided name exists
-
-By default, when nothing matches (whether via the recursive search exhausting every combination, or a single exact-match attempt under the setting above), the row still imports &mdash; simply with no GeographicArea linked to its CollectingEvent. The `Error if no geographic area with provided name exists` setting makes that same situation an error instead.
-
-::: warning
-The behavior below is verified directly against `import_settings` and is what a conforming importer is expected to do. As currently wired, however, checking this box in the DwC Occurrence Import task's `Settings` panel does not reach it: the checkbox writes `require_geographic_area_exist` (singular), and the importer only ever reads `require_geographic_area_exists` (plural) &mdash; the two don't match, so toggling the checkbox has no effect. Until that's fixed, this setting is only reachable by setting `require_geographic_area_exists` directly (e.g. via the API).
-:::
-
-**Test spreadsheet:** [`geographic_area_no_match.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/geographic_area_no_match.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/geographic_area_no_match.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/geographic_area_no_match.tsv">locally</a><br>
-**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
-
-**Input:** None &mdash; `Nowhereland`, `Nowhere State`, and `Nowhere County` don't match any GeographicArea in the project, at any level.
-
-**Off (default):**
-
-<table class="spec-table">
-<colgroup>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col style="width: 1em;">
-  <col>
-  <col>
-  <col>
-  <col>
-</colgroup>
-<thead>
-<tr>
-  <th>occurrenceID</th>
-  <th>basisOfRecord</th>
-  <th>scientificName</th>
-  <th>country</th>
-  <th>stateProvince</th>
-  <th>county</th>
-  <th class="col-spacer">&nbsp;</th>
-  <th class="outcome-header">status</th>
-  <th class="outcome-header">TaxonNames created</th>
-  <th class="outcome-header">CollectionObjects created</th>
-  <th class="outcome-header">TaxonDeterminations created</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>occ-a</td>
-  <td>PreservedSpecimen</td>
-  <td>Orotettix andeanus</td>
-  <td>Nowhereland</td>
-  <td>Nowhere State</td>
-  <td>Nowhere County</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-</tr>
-</tbody>
-</table>
-
-**On:** the same row instead errors, with `country, stateProvince, county: "GeographicArea with location levels county:Nowhere County, state_province:Nowhere State, country:Nowhereland not found."` &mdash; no CollectionObject or CollectingEvent persists.
+If the full combination of `county` + `stateProvince` + `country` doesn't match any GeographicArea, the finest term (`county`) is dropped and the remaining combination is tried again, and so on, until either something matches or no terms are left &mdash; and if nothing ever matches, the row still imports with no GeographicArea linked. See [Only search for the finest geographical name provided](#only-search-for-the-finest-geographical-name-provided) and [Error if no geographic area with provided name exists](#error-if-no-geographic-area-with-provided-name-exists) in [Settings](#settings) for the two settings that change this.
 
 #### Require geographical area data origin
 
@@ -2862,40 +2736,6 @@ A qualifier like `cf.` or `aff.` doesn't attach to the TaxonName itself &mdash; 
 
 **Notes:** The species TaxonName `americanus` ends up with 2 OTUs: the plain one (`name: nil`, created alongside the TaxonName itself) and a second one with `name: "cf."`. The row's TaxonDetermination points at the qualified OTU, not the plain one.
 
-### Enable searching for Organization name in determinedBy field
-
-By default, `identifiedBy` is always parsed as one or more people's names (the same mechanism [`recordedBy`](#recordedby) uses), even if the value actually names an Organization. This setting checks Organizations by name first.
-
-::: tip
-The setting's own label says "determinedBy", but it's `identifiedBy` it actually affects &mdash; there is no `determinedBy` DwC term. Confirmed directly against the setting's code (`app/models/dataset_record/darwin_core/occurrence.rb`, `parse_identification_class`).
-:::
-
-**Test spreadsheet:** [`identified_by_organization.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/identified_by_organization.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/identified_by_organization.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/identified_by_organization.tsv">locally</a><br>
-**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
-
-**Input:**
-- An Organization named `Field Museum`.
-
-**Off (default):** row `occ-a`, `identifiedBy: "Field Museum"`, imports; no Organization is checked, and the value is run through person-name parsing regardless of the Organization sharing its exact name.
-
-**On:** the same row instead matches the Organization `Field Museum` directly, assigning it (not a parsed person) as the TaxonDetermination's determiner.
-
-### Also search for Organization alternate name
-
-Only meaningful with the setting above also enabled. By default, an Organization is matched by its `name` field only; this setting also checks its `alternate_name`.
-
-**Test spreadsheet:** [`identified_by_organization_alt_name.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/identified_by_organization_alt_name.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/identified_by_organization_alt_name.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/identified_by_organization_alt_name.tsv">locally</a><br>
-**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
-
-**Input:**
-- An Organization named `Field Museum`, with alternate name `FM`.
-
-**Settings:** `Enable searching for Organization name in determinedBy field` on for both rows below.
-
-**Off (default):** row `occ-a`, `identifiedBy: "FM"`, imports; `FM` doesn't match the Organization's `name` (`Field Museum`), and its `alternate_name` isn't checked, so no Organization is matched.
-
-**On:** the same row instead matches the Organization via its `alternate_name`.
-
 ## Taxon
 
 Terms naming the taxon an occurrence is determined to be. See [Minimum required fields](#minimum-required-fields) for the base case (`scientificName` alone) and [Name matching](#name-matching) in [Matching](#matching) below for how a name is matched to (or disambiguated against) existing nomenclature; this section covers the individual rank columns, `higherClassification`, and `taxonRank`.
@@ -3278,141 +3118,7 @@ Without an explicit `TW:Namespace:catalogNumber` column (see [catalogNumber name
 
 **Notes:** Row 1 resolves via the more specific `institutionCode` + `collectionCode` mapping (`INHS100`). Row 2 has no `institutionCode`, so that mapping doesn't apply to it &mdash; it falls back to the `collectionCode`-only mapping (`GENERIC200`). Row 3 has no `collectionCode` at all; it resolves via the separate `institutionCode`-alone mapping (`INHS300`) &mdash; not via row 2's `collectionCode`-only mapping, which requires a `collectionCode` value to match against.
 
-### catalogNumber must match its computed identifier verbatim
-
-A namespace's short name plus a row's `catalogNumber` value together compute an identifier (e.g. Namespace `ABC` + `catalogNumber` `100` &rarr; `ABC100`). By default, the `catalogNumber` cell can be written with or without that prefix &mdash; both `100` and `ABC100` resolve to the same identifier. The `Error records when computed identifier will not match catalogNumber` setting tightens this: with it on, the cell value must already include the prefix exactly, or the row errors.
-
-**Test spreadsheet:** [`catalog_number_verbatim_match.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/catalog_number_verbatim_match.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/catalog_number_verbatim_match.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/catalog_number_verbatim_match.tsv">locally</a><br>
-**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
-
-**Input:**
-- A Namespace with short name `ABC`, delimiter `NONE`.
-
-**Off (default):**
-
-<table class="spec-table">
-<colgroup>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col style="width: 1em;">
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-</colgroup>
-<thead>
-<tr>
-  <th>occurrenceID</th>
-  <th>basisOfRecord</th>
-  <th>scientificName</th>
-  <th>catalogNumber</th>
-  <th>TW:Namespace:catalogNumber</th>
-  <th class="col-spacer">&nbsp;</th>
-  <th class="outcome-header">status</th>
-  <th class="outcome-header">TaxonNames created</th>
-  <th class="outcome-header">CollectionObjects created</th>
-  <th class="outcome-header">TaxonDeterminations created</th>
-  <th class="outcome-header">CatalogNumber value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>occ-a</td>
-  <td>PreservedSpecimen</td>
-  <td>Orotettix andeanus</td>
-  <td>100</td>
-  <td>ABC</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">ABC100</td>
-</tr>
-<tr>
-  <td>occ-b</td>
-  <td>PreservedSpecimen</td>
-  <td>Sphenarium purpurascens</td>
-  <td>ABC200</td>
-  <td>ABC</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">ABC200</td>
-</tr>
-</tbody>
-</table>
-
-Both the bare value (`100`) and the already-prefixed value (`ABC200`) import fine, computing to `ABC100` and `ABC200` respectively.
-
-**On:**
-
-<table class="spec-table">
-<colgroup>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col style="width: 1em;">
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-</colgroup>
-<thead>
-<tr>
-  <th>occurrenceID</th>
-  <th>basisOfRecord</th>
-  <th>scientificName</th>
-  <th>catalogNumber</th>
-  <th>TW:Namespace:catalogNumber</th>
-  <th class="col-spacer">&nbsp;</th>
-  <th class="outcome-header">status</th>
-  <th class="outcome-header">TaxonNames created</th>
-  <th class="outcome-header">CollectionObjects created</th>
-  <th class="outcome-header">TaxonDeterminations created</th>
-  <th class="outcome-header">CatalogNumber value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>occ-a</td>
-  <td>PreservedSpecimen</td>
-  <td>Orotettix andeanus</td>
-  <td>100</td>
-  <td>ABC</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
-  <td class="outcome-col">0</td>
-  <td class="outcome-col">0</td>
-  <td class="outcome-col">0</td>
-  <td class="outcome-col"><em>(none)</em></td>
-</tr>
-<tr>
-  <td>occ-b</td>
-  <td>PreservedSpecimen</td>
-  <td>Sphenarium purpurascens</td>
-  <td>ABC200</td>
-  <td>ABC</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">ABC200</td>
-</tr>
-</tbody>
-</table>
-
-Row 1's error is `catalogNumber: "Computed catalog number ABC100 will not match verbatim 100. Verify the mapped namespace and namespace delimiter are correct."` Row 2 already included the prefix, so it's unaffected by the setting.
+By default, a `catalogNumber` cell can be written with or without its Namespace's short-name prefix &mdash; both resolve to the same identifier. See [Error records when computed identifier will not match catalogNumber](#error-records-when-computed-identifier-will-not-match-catalognumber) in [Settings](#settings) for the setting that requires the prefix be included verbatim instead.
 
 ### Duplicate catalogNumber
 
@@ -3729,169 +3435,7 @@ Reusing an `eventID` value across two separate imports only shares the underlyin
 
 **Notes:** All four rows import, and 3 CollectingEvents are created in total. `occ-a1` and `occ-b1` share the identical `eventID` value `100`, but each is left to its import's own default Namespace, so they resolve to two separate CollectingEvents. `occ-a2` and `occ-b2` share `eventID` value `200` through the same explicit `EVT` Namespace in both imports, so `occ-b2` reuses `occ-a2`'s CollectingEvent instead of creating a new one.
 
-#### eventID must match its computed identifier verbatim
-
-The `eventID` analog of [catalogNumber must match its computed identifier verbatim](#catalognumber-must-match-its-computed-identifier-verbatim): a Namespace's short name plus a row's `eventID` value together compute an identifier (e.g. Namespace `EVT` + `eventID` `100` &rarr; `EVT100`). By default, the `eventID` cell can be written with or without that prefix. The `Error records when computed identifier will not match eventID` setting tightens this: with it on, the cell value must already include the prefix exactly, or the row errors.
-
-This only applies to a row with an *explicit* `TW:Namespace:eventID` &mdash; it has no effect on a row left to the default per-import Namespace (see [eventID namespace mechanics](#eventid-namespace-mechanics)), since there's no explicit namespace prefix to check the value against.
-
-**Test spreadsheet:** [`event_id_verbatim_match.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_id_verbatim_match.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/event_id_verbatim_match.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_id_verbatim_match.tsv">locally</a><br>
-**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
-
-**Input:**
-- A Namespace with short name `EVT`, delimiter `NONE`.
-
-**Off (default):**
-
-<table class="spec-table">
-<colgroup>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col style="width: 1em;">
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-</colgroup>
-<thead>
-<tr>
-  <th>occurrenceID</th>
-  <th>basisOfRecord</th>
-  <th>scientificName</th>
-  <th>eventID</th>
-  <th>TW:Namespace:eventID</th>
-  <th class="col-spacer">&nbsp;</th>
-  <th class="outcome-header">status</th>
-  <th class="outcome-header">TaxonNames created</th>
-  <th class="outcome-header">CollectionObjects created</th>
-  <th class="outcome-header">TaxonDeterminations created</th>
-  <th class="outcome-header">Eventidentifier value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>occ-a</td>
-  <td>PreservedSpecimen</td>
-  <td>Orotettix andeanus</td>
-  <td>100</td>
-  <td>EVT</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">EVT100</td>
-</tr>
-<tr>
-  <td>occ-b</td>
-  <td>PreservedSpecimen</td>
-  <td>Sphenarium purpurascens</td>
-  <td>EVT200</td>
-  <td>EVT</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">EVT200</td>
-</tr>
-<tr>
-  <td>occ-c</td>
-  <td>PreservedSpecimen</td>
-  <td>Melanoplus femurrubrum</td>
-  <td>100</td>
-  <td><em>(blank)</em></td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">eventID:100</td>
-</tr>
-</tbody>
-</table>
-
-Both the bare value (`100`) and the already-prefixed value (`EVT200`) import fine under the explicit `EVT` Namespace, computing to `EVT100` and `EVT200` respectively. Row 3, left to the default Namespace, is unaffected either way.
-
-**On:**
-
-<table class="spec-table">
-<colgroup>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col style="width: 1em;">
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-</colgroup>
-<thead>
-<tr>
-  <th>occurrenceID</th>
-  <th>basisOfRecord</th>
-  <th>scientificName</th>
-  <th>eventID</th>
-  <th>TW:Namespace:eventID</th>
-  <th class="col-spacer">&nbsp;</th>
-  <th class="outcome-header">status</th>
-  <th class="outcome-header">TaxonNames created</th>
-  <th class="outcome-header">CollectionObjects created</th>
-  <th class="outcome-header">TaxonDeterminations created</th>
-  <th class="outcome-header">Eventidentifier value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>occ-a</td>
-  <td>PreservedSpecimen</td>
-  <td>Orotettix andeanus</td>
-  <td>100</td>
-  <td>EVT</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
-  <td class="outcome-col">0</td>
-  <td class="outcome-col">0</td>
-  <td class="outcome-col">0</td>
-  <td class="outcome-col"><em>(none)</em></td>
-</tr>
-<tr>
-  <td>occ-b</td>
-  <td>PreservedSpecimen</td>
-  <td>Sphenarium purpurascens</td>
-  <td>EVT200</td>
-  <td>EVT</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">EVT200</td>
-</tr>
-<tr>
-  <td>occ-c</td>
-  <td>PreservedSpecimen</td>
-  <td>Melanoplus femurrubrum</td>
-  <td>100</td>
-  <td><em>(blank)</em></td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">eventID:100</td>
-</tr>
-</tbody>
-</table>
-
-**Notes:** Row 1's error is `eventID: "Computed Event EVT100 will not match verbatim 100. Verify the namespace delimiter is correct."` Row 3 still imports even with the setting on, since it has no explicit `TW:Namespace:eventID` for the value to be checked against.
+By default, an `eventID` cell can be written with or without its Namespace's short-name prefix, the same as `catalogNumber`. See [Error records when computed identifier will not match eventID](#error-records-when-computed-identifier-will-not-match-eventid) in [Settings](#settings) for the setting that requires the prefix be included verbatim instead &mdash; it only applies to a row with an explicit `TW:Namespace:eventID`, since a row left to the default per-import Namespace has no explicit prefix to check against.
 
 #### fieldNumber reused across separate imports
 
@@ -5962,4 +5506,466 @@ By default, a `scientificName` (with or without `scientificNameAuthorship`) that
 </table>
 
 Row 1 errors with `scientificName: "Protonym americanus not found with that name and/or classification. Importing new names is disabled by import settings."` &mdash; no new TaxonName is created, and the pre-existing `Mayr, 1862` and `Emery, 1893` species are left untouched.
+
+### Error records when computed identifier will not match eventID
+
+A Namespace's short name plus a row's `eventID` value together compute an identifier (e.g. Namespace `EVT` + `eventID` `100` &rarr; `EVT100`). By default, the `eventID` cell can be written with or without that prefix. With this setting on, the cell value must already include the prefix exactly, or the row errors.
+
+This only applies to a row with an *explicit* `TW:Namespace:eventID` &mdash; it has no effect on a row left to the default per-import Namespace (see [eventID namespace mechanics](#eventid-namespace-mechanics)), since there's no explicit namespace prefix to check the value against.
+
+**Test spreadsheet:** [`event_id_verbatim_match.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_id_verbatim_match.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/event_id_verbatim_match.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_id_verbatim_match.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `EVT`, delimiter `NONE`.
+
+**Off (default):**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>eventID</th>
+  <th>TW:Namespace:eventID</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Eventidentifier value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td>EVT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">EVT100</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>EVT200</td>
+  <td>EVT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">EVT200</td>
+</tr>
+<tr>
+  <td>occ-c</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>100</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">eventID:100</td>
+</tr>
+</tbody>
+</table>
+
+Both the bare value (`100`) and the already-prefixed value (`EVT200`) import fine under the explicit `EVT` Namespace, computing to `EVT100` and `EVT200` respectively. Row 3, left to the default Namespace, is unaffected either way.
+
+**On:**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>eventID</th>
+  <th>TW:Namespace:eventID</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Eventidentifier value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td>EVT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>EVT200</td>
+  <td>EVT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">EVT200</td>
+</tr>
+<tr>
+  <td>occ-c</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>100</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">eventID:100</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's error is `eventID: "Computed Event EVT100 will not match verbatim 100. Verify the namespace delimiter is correct."` Row 3 still imports even with the setting on, since it has no explicit `TW:Namespace:eventID` for the value to be checked against.
+
+### Error records when computed identifier will not match catalogNumber
+
+A namespace's short name plus a row's `catalogNumber` value together compute an identifier (e.g. Namespace `ABC` + `catalogNumber` `100` &rarr; `ABC100`). By default, the `catalogNumber` cell can be written with or without that prefix &mdash; both `100` and `ABC100` resolve to the same identifier. With this setting on, the cell value must already include the prefix exactly, or the row errors.
+
+**Test spreadsheet:** [`catalog_number_verbatim_match.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/catalog_number_verbatim_match.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/catalog_number_verbatim_match.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/catalog_number_verbatim_match.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `ABC`, delimiter `NONE`.
+
+**Off (default):**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>TW:Namespace:catalogNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td>ABC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">ABC100</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>ABC200</td>
+  <td>ABC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">ABC200</td>
+</tr>
+</tbody>
+</table>
+
+Both the bare value (`100`) and the already-prefixed value (`ABC200`) import fine, computing to `ABC100` and `ABC200` respectively.
+
+**On:**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th>TW:Namespace:catalogNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td>ABC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>ABC200</td>
+  <td>ABC</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">ABC200</td>
+</tr>
+</tbody>
+</table>
+
+Row 1's error is `catalogNumber: "Computed catalog number ABC100 will not match verbatim 100. Verify the mapped namespace and namespace delimiter are correct."` Row 2 already included the prefix, so it's unaffected by the setting.
+
+### Enable searching for Organization name in determinedBy field
+
+By default, `identifiedBy` is always parsed as one or more people's names (the same mechanism [`recordedBy`](#recordedby) uses), even if the value actually names an Organization. This setting checks Organizations by name first.
+
+::: tip
+The setting's own label says "determinedBy", but it's `identifiedBy` it actually affects &mdash; there is no `determinedBy` DwC term. Confirmed directly against the setting's code (`app/models/dataset_record/darwin_core/occurrence.rb`, `parse_identification_class`).
+:::
+
+**Test spreadsheet:** [`identified_by_organization.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/identified_by_organization.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/identified_by_organization.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/identified_by_organization.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- An Organization named `Field Museum`.
+
+**Off (default):** row `occ-a`, `identifiedBy: "Field Museum"`, imports; no Organization is checked, and the value is run through person-name parsing regardless of the Organization sharing its exact name.
+
+**On:** the same row instead matches the Organization `Field Museum` directly, assigning it (not a parsed person) as the TaxonDetermination's determiner.
+
+### Also search for Organization alternate name
+
+Only meaningful with the setting above also enabled. By default, an Organization is matched by its `name` field only; this setting also checks its `alternate_name`.
+
+**Test spreadsheet:** [`identified_by_organization_alt_name.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/identified_by_organization_alt_name.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/identified_by_organization_alt_name.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/identified_by_organization_alt_name.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- An Organization named `Field Museum`, with alternate name `FM`.
+
+**Settings:** `Enable searching for Organization name in determinedBy field` on for both rows below.
+
+**Off (default):** row `occ-a`, `identifiedBy: "FM"`, imports; `FM` doesn't match the Organization's `name` (`Field Museum`), and its `alternate_name` isn't checked, so no Organization is matched.
+
+**On:** the same row instead matches the Organization via its `alternate_name`.
+
+### Only search for the finest geographical name provided
+
+If the full combination of `county` + `stateProvince` + `country` doesn't match any GeographicArea, the finest term (`county`) is dropped and the remaining combination is tried again, and so on, until either something matches or no terms are left. This setting turns that fallback off, requiring the full combination given to match exactly.
+
+**Test spreadsheet:** [`geographic_area_recursive_fallback.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/geographic_area_recursive_fallback.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/geographic_area_recursive_fallback.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/geographic_area_recursive_fallback.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- GeographicAreas `Champaign` (county) &rarr; `Illinois` (state) &rarr; `United States` (country). The row's `county` value (`Nonexistent County`) matches none of them.
+
+**Off (default):**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>country</th>
+  <th>stateProvince</th>
+  <th>county</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">GeographicArea matched</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>United States</td>
+  <td>Illinois</td>
+  <td>Nonexistent County</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">Illinois</td>
+</tr>
+</tbody>
+</table>
+
+`county` doesn't match, so it's dropped and `stateProvince` + `country` is tried, matching `Illinois`.
+
+**On:** with the setting enabled, the same row instead imports with no GeographicArea matched at all &mdash; the full `county` + `stateProvince` + `country` combination is tried exactly once, and since it doesn't match, nothing is matched. This isn't an error by itself; see the next section for the setting that makes an unmatched combination an error.
+
+### Error if no geographic area with provided name exists
+
+By default, when nothing matches (whether via the recursive search exhausting every combination, or a single exact-match attempt under the setting above), the row still imports &mdash; simply with no GeographicArea linked to its CollectingEvent. This setting makes that same situation an error instead.
+
+::: warning
+The behavior below is verified directly against `import_settings` and is what a conforming importer is expected to do. As currently wired, however, checking this box in the DwC Occurrence Import task's `Settings` panel does not reach it: the checkbox writes `require_geographic_area_exist` (singular), and the importer only ever reads `require_geographic_area_exists` (plural) &mdash; the two don't match, so toggling the checkbox has no effect. Until that's fixed, this setting is only reachable by setting `require_geographic_area_exists` directly (e.g. via the API).
+:::
+
+**Test spreadsheet:** [`geographic_area_no_match.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/geographic_area_no_match.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/geographic_area_no_match.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/geographic_area_no_match.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None &mdash; `Nowhereland`, `Nowhere State`, and `Nowhere County` don't match any GeographicArea in the project, at any level.
+
+**Off (default):**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>country</th>
+  <th>stateProvince</th>
+  <th>county</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>Nowhereland</td>
+  <td>Nowhere State</td>
+  <td>Nowhere County</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**On:** the same row instead errors, with `country, stateProvince, county: "GeographicArea with location levels county:Nowhere County, state_province:Nowhere State, country:Nowhereland not found."` &mdash; no CollectionObject or CollectingEvent persists.
 
