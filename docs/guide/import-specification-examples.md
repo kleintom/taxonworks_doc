@@ -1749,6 +1749,10 @@ If the full combination of `county` + `stateProvince` + `country` doesn't match 
 
 By default, when nothing matches (whether via the recursive search exhausting every combination, or a single exact-match attempt under the setting above), the row still imports &mdash; simply with no GeographicArea linked to its CollectingEvent. The `Error if no geographic area with provided name exists` setting makes that same situation an error instead.
 
+::: danger
+The behavior below is verified directly against `import_settings` and is what a conforming importer is expected to do. As currently wired, however, checking this box in the DwC Occurrence Import task's `Settings` panel does not reach it: the checkbox writes `require_geographic_area_exist` (singular), and the importer only ever reads `require_geographic_area_exists` (plural) &mdash; the two don't match, so toggling the checkbox has no effect. Until that's fixed, this setting is only reachable by setting `require_geographic_area_exists` directly (e.g. via the API).
+:::
+
 **Test spreadsheet:** [`geographic_area_no_match.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/geographic_area_no_match.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/geographic_area_no_match.tsv">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
@@ -2089,6 +2093,149 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
 </table>
 
 **Notes:** Row 1's error is `coordinateUncertaintyInMeters: "Non-integer value"`. This check runs before the CollectingEvent is created, so no CollectingEvent exists afterward either, even though `decimalLatitude`/`decimalLongitude` were themselves valid.
+
+## Identification
+
+`typeStatus` designates a CollectionObject as type material for a Protonym &mdash; a TypeMaterial record linking the two. The mechanics below cover recognizing and parsing a `typeStatus` value; see [Type material matching](#type-material-matching) in [Matching](#matching) for how the *name* portion of a `typeStatus` value (e.g. the `Formica americana` in `holotype of Formica americana`) is resolved to a Protonym.
+
+### typeStatus: minimum, matching the current name
+
+A `typeStatus` value with no name attached (just the type word, e.g. `holotype`) is taken to mean the specimen's own determined name &mdash; the same name the row's `scientificName` (or `TW:TaxonDetermination:otu_id`) already resolved to.
+
+**Test spreadsheet:** [`type_status_minimum.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/type_status_minimum.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/type_status_minimum.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonName `Camponotus` (genus) &rarr; `americanus` (species).
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>typeStatus</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Type<wbr>Materials created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>holotype</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The TypeMaterial's `type_type` is `holotype`, and its `protonym` is the same species TaxonName the row's TaxonDetermination points to.
+
+### typeStatus illegal for the nomenclatural code
+
+The type word itself (`holotype`, `paratype`, `isotype`, etc.) must be legal for the row's nomenclatural code (`nomenclaturalCode` column, or the import's default code if that's blank) &mdash; ICZN and ICN each recognize a different set of words.
+
+**Test spreadsheet:** [`type_status_illegal_for_code.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/type_status_illegal_for_code.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/type_status_illegal_for_code.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonName `Camponotus` (genus) &rarr; `americanus` (species).
+
+**Settings:** None (all defaults) &mdash; the import's default nomenclatural code is ICZN, and `isotype` is an ICN-only term.
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>typeStatus</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>isotype</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's error is `typeStatus: "could not extract legal type from typeStatus"`. No CollectionObject, TaxonDetermination, or TypeMaterial is created &mdash; the whole row is rejected, not just the type designation.
+
+### Unparseable typeStatus
+
+Beyond the type word being legal, `typeStatus` as a whole must fit one of two shapes: a bare word (`holotype`), or `word of name` (`holotype of Formica americana`). Anything else is rejected.
+
+**Test spreadsheet:** [`type_status_unparseable.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/type_status_unparseable.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/type_status_unparseable.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonName `Camponotus` (genus) &rarr; `americanus` (species).
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `typeStatus: "holotype and some other stuff"`, errors with `typeStatus: "Unprocessable typeStatus information"`.
+
+### typeStatus is ignored when TW:TaxonDetermination:otu_id is used
+
+`typeStatus` is only processed when the row's determination comes from `scientificName`; a row matched via `TW:TaxonDetermination:otu_id` never creates a TypeMaterial, even if `typeStatus` is present.
+
+**Test spreadsheet:** [`type_status_ignored_with_otu_id.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/type_status_ignored_with_otu_id.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/type_status_ignored_with_otu_id.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- An OTU (id `900001`) with an associated TaxonName.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `TW:TaxonDetermination:otu_id: "900001"`, `typeStatus: "holotype"`, imports normally &mdash; 0 TypeMaterials are created.
 
 ## Matching
 
@@ -4050,6 +4197,95 @@ Matching `scientificNameAuthorship` against an existing name's author is an exac
 :::
 
 **Notes:** Verify author spelling carefully against the target project's existing nomenclature before import, particularly when multiple identically-spelled species already exist. Projects that want mismatches like this one rejected instead of silently creating a new name can enable [Restrict import to existing nomenclature only](#restrict-import-to-existing-nomenclature-only).
+
+### Type material matching
+
+The name portion of a `typeStatus` value (e.g. `Formica americana` in `holotype of Formica americana`) is matched against project nomenclature independently of, and by different rules than, the row's own `scientificName` &mdash; see [Identification](#identification) above for the mechanics of `typeStatus` itself. A bare type word with no name (just `holotype`) skips all of this and is taken to mean the row's own determined name directly.
+
+#### typeStatus matches an original combination directly
+
+If the name given exactly matches a Protonym's original combination (the name it was first published under, which can differ from its current name after later nomenclatural changes), that Protonym is used.
+
+**Test spreadsheet:** [`type_status_original_combination.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/type_status_original_combination.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/type_status_original_combination.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonName `Camponotus americanus` (Mayr, 1862), whose original combination is `Formica americanus`.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `scientificName: "Camponotus americanus"`, `typeStatus: "holotype of Formica americanus"`, imports and creates 1 TypeMaterial, matched to `Camponotus americanus` &mdash; its current name, even though the `typeStatus` value names its original combination.
+
+::: tip
+Matching against an original combination is an exact string match against the name as stored, including grammatical gender agreement (e.g. `Formica` is grammatically feminine, so a species originally described in it would have a feminine-agreeing epithet). A `typeStatus` value that doesn't reproduce that exactly &mdash; the correct genus but ungendered or misgendered epithet &mdash; won't match this way, though it may still be picked up by the [wildcard subgenus match](#typestatus-wildcard-subgenus-match) below if the genus/subgenus portion alone is unambiguous.
+:::
+
+#### typeStatus matches via a synonym
+
+If the name isn't an original combination match, names linked to the row's determined name as a synonym are tried next.
+
+**Test spreadsheet:** [`type_status_synonym.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/type_status_synonym.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/type_status_synonym.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonName `Camponotus americanus` (Mayr, 1862).
+- TaxonName `Formica nigra` (Smith, 1858), a synonym of `Camponotus americanus`.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `scientificName: "Camponotus americanus"`, `typeStatus: "holotype of Formica nigra"`, imports and creates 1 TypeMaterial, matched to the synonym `Formica nigra` &mdash; not to `Camponotus americanus`, the name the row's own TaxonDetermination points to.
+
+#### typeStatus wildcard subgenus match
+
+Failing an original-combination or synonym match, a genus-plus-species name (no subgenus) is tried once more, this time allowing any (or no) subgenus in between &mdash; matched against either a candidate's original combination or its current name.
+
+**Unambiguous (one candidate):**
+
+**Test spreadsheet:** [`type_status_wildcard_subgenus_unambiguous.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/type_status_wildcard_subgenus_unambiguous.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/type_status_wildcard_subgenus_unambiguous.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonName `Camponotus` (genus) &rarr; `Tanaemyrmex` (subgenus) &rarr; `americanus` (Mayr, 1862).
+- TaxonName `Camponotus nearcticus`, an unrelated species (created fresh by this row's own `scientificName`).
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `scientificName: "Camponotus nearcticus"`, `typeStatus: "holotype of Camponotus americanus"`, imports and creates 1 TypeMaterial, matched to the subgenus-nested `Camponotus (Tanaemyrmex) americanus` &mdash; despite `typeStatus` omitting the subgenus entirely.
+
+**Ambiguous (two homonym candidates):**
+
+**Test spreadsheet:** [`type_status_wildcard_subgenus_ambiguous.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/type_status_wildcard_subgenus_ambiguous.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/type_status_wildcard_subgenus_ambiguous.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonNames `Camponotus` (genus) &rarr; `Tanaemyrmex` (subgenus) &rarr; `americanus` (Mayr, 1862), and `Camponotus` &rarr; `Myrmentoma` (subgenus) &rarr; `americanus` (Emery, 1893).
+- TaxonName `Camponotus nearcticus`, an unrelated species.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, same as above but with both homonyms present, errors with `typeStatus: ["Could not identify or disambiguate name Camponotus americanus.", ..., "Multiple names returned in wildcard search: [id: ... Mayr, 1862], [id: ... Emery, 1893]"]`, naming both candidates. No TypeMaterial is created.
+
+::: tip
+This is the same underlying ambiguity as [Ambiguous subgenus homonym, no disambiguating information](#ambiguous-subgenus-homonym-no-disambiguating-information) in Name matching &mdash; but here, unlike there, it's handled correctly: the row is rejected outright, naming both candidates, rather than silently matching something coarser.
+:::
+
+#### A TypeMaterial that fails its own validation aborts the whole row
+
+If everything above resolves to a Protonym (or a bare type word is used) but the resulting TypeMaterial itself fails validation &mdash; for example, its Protonym isn't species-rank, which `TypeMaterial` requires &mdash; the row is expected to still import, simply without a TypeMaterial. This is the described purpose of leaving `Error records with unprocessable typeStatus information` off (the default): a best-effort attempt at type designation that doesn't hold up the rest of the row if it doesn't work out.
+
+::: danger
+TaxonWorks does not currently do this. Building the (about-to-fail) TypeMaterial attaches it, in memory, to its CollectionObject's `type_materials` association before the failed validation is ever checked. That in-memory association is itself re-validated moments later as a side effect of saving the row's `occurrenceID` identifier, and the row errors &mdash; but with a message, `identifier_object: "is invalid"`, that has no connection to `typeStatus`, `TypeMaterial`, or the actual problem. If you see this specific error on a row that includes `typeStatus`, check whether the type designation itself is the real cause (e.g. whether the row's name resolved to species rank at all) &mdash; the message won't tell you.
+:::
+
+**Test spreadsheet:** [`type_status_invalid_type_material_aborts_row.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/type_status_invalid_type_material_aborts_row.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/type_status_invalid_type_material_aborts_row.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonName `Camponotus` (genus only, no species).
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `scientificName: "Camponotus"` (genus rank), `typeStatus: "holotype"`, currently errors instead of importing, since a genus isn't a species-group name and can't be designated a type. Enabling `Error records with unprocessable typeStatus information` (`require_type_material_success`) instead gives a clear, specific error naming the real problem &mdash; `protonym_id: "Type cannot be designated, name is not a species group name"` &mdash; ironically clearer than what the default, "lenient" setting produces for the identical situation.
 
 ## Settings
 
