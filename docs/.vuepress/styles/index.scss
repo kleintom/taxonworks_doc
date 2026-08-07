@@ -39,16 +39,6 @@
     background: transparent;
   }
 
-  th.outcome-header,
-  td.outcome-col {
-    // Headers like "CollectionObjects created" are, to the browser, one
-    // unbreakable word (no spaces/hyphens) and so force the column wide
-    // enough to fit on one line unless wrapping is explicitly allowed.
-    // The markup also places <wbr> at the natural word boundary so the
-    // wrap point is a readable one rather than an arbitrary mid-word cut.
-    overflow-wrap: anywhere;
-  }
-
   th.outcome-header {
     background: var(--vp-c-accent-bg);
     color: var(--vp-c-accent-text);

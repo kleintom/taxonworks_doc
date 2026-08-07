@@ -172,10 +172,10 @@ The smallest file the importer will accept &mdash; just `occurrenceID`, `basisOf
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -184,9 +184,9 @@ The smallest file the importer will accept &mdash; just `occurrenceID`, `basisOf
   <th>scientificName</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -224,10 +224,10 @@ There's a second, mutually exclusive minimal field set: replace `scientificName`
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -236,9 +236,9 @@ There's a second, mutually exclusive minimal field set: replace `scientificName`
   <th>TW:TaxonDetermination:otu_id</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -290,10 +290,10 @@ The [Record-level class](/guide/import#record-level-class)'s other value-checked
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -303,9 +303,9 @@ The [Record-level class](/guide/import#record-level-class)'s other value-checked
   <th>type</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -376,10 +376,10 @@ The [Record-level class](/guide/import#record-level-class)'s other value-checked
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -388,9 +388,9 @@ The [Record-level class](/guide/import#record-level-class)'s other value-checked
   <th>scientificName</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -467,10 +467,10 @@ The [Record-level class](/guide/import#record-level-class)'s other value-checked
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -479,9 +479,9 @@ The [Record-level class](/guide/import#record-level-class)'s other value-checked
   <th>scientificName</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -518,10 +518,10 @@ Same spreadsheet as above, but the project already has the required `Biocuration
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -530,9 +530,9 @@ Same spreadsheet as above, but the project already has the required `Biocuration
   <th>scientificName</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -573,10 +573,10 @@ Yes &mdash; a second row reusing an `occurrenceID` already seen earlier in the s
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -585,9 +585,9 @@ Yes &mdash; a second row reusing an `occurrenceID` already seen earlier in the s
   <th>scientificName</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -640,11 +640,11 @@ A blank `catalogNumber` needs nothing. A `catalogNumber` paired with an explicit
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -655,10 +655,10 @@ A blank `catalogNumber` needs nothing. A `catalogNumber` paired with an explicit
   <th>TW:Namespace:catalogNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -726,11 +726,11 @@ Unlike `catalogNumber`, a `recordNumber` with no way to resolve a namespace does
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -741,10 +741,10 @@ Unlike `catalogNumber`, a `recordNumber` with no way to resolve a namespace does
   <th>TW:Namespace:recordNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Record<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">RecordNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -814,11 +814,11 @@ Creates one unvetted `Person` per name, and always writes the raw column value i
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 4.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -828,9 +828,9 @@ Creates one unvetted `Person` per name, and always writes the raw column value i
   <th>recordedBy</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
   <th class="outcome-header">People created</th>
 </tr>
 </thead>
@@ -883,10 +883,10 @@ Creates one unvetted `Person` per name, and always writes the raw column value i
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -896,9 +896,9 @@ Creates one unvetted `Person` per name, and always writes the raw column value i
   <th>individualCount</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -985,10 +985,10 @@ Unlike `basisOfRecord: FossilSpecimen`'s `BiocurationClass`, `sex` doesn't requi
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -998,9 +998,9 @@ Unlike `basisOfRecord: FossilSpecimen`'s `BiocurationClass`, `sex` doesn't requi
   <th>sex</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -1061,10 +1061,10 @@ The mirror image of `sex`: `preparations` must match an existing `PreparationTyp
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1074,9 +1074,9 @@ The mirror image of `sex`: `preparations` must match an existing `PreparationTyp
   <th>preparations</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -1131,11 +1131,11 @@ Unlike `catalogNumber`, an `eventID` with no `TW:Namespace:eventID` column value
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1146,10 +1146,10 @@ Unlike `catalogNumber`, an `eventID` with no `TW:Namespace:eventID` column value
   <th>TW:Namespace:eventID</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Event<wbr>identifier value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Eventidentifier value</th>
 </tr>
 </thead>
 <tbody>
@@ -1204,11 +1204,11 @@ Unlike `eventID`, `fieldNumber` has no default-namespace fallback: `TW:Namespace
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1219,10 +1219,10 @@ Unlike `eventID`, `fieldNumber` has no default-namespace fallback: `TW:Namespace
   <th>TW:Namespace:fieldNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">FieldNumber<wbr>identifier value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">FieldNumberidentifier value</th>
 </tr>
 </thead>
 <tbody>
@@ -1295,12 +1295,12 @@ A single `eventDate` (e.g. `1983-10-25`) sets only the start date. A range, expr
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1310,9 +1310,9 @@ A single `eventDate` (e.g. `1983-10-25`) sets only the start date. A range, expr
   <th>eventDate</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
   <th class="outcome-header">start date</th>
   <th class="outcome-header">end date</th>
 </tr>
@@ -1365,15 +1365,15 @@ When no `eventDate` is given, `year`, `month`, and `day` populate the start date
   <col>
   <col>
   <col>
-  <col style="width: 2.5em;">
-  <col style="width: 3em;">
-  <col style="width: 2.5em;">
+  <col>
+  <col>
+  <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1385,9 +1385,9 @@ When no `eventDate` is given, `year`, `month`, and `day` populate the start date
   <th>day</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
   <th class="outcome-header">start date</th>
 </tr>
 </thead>
@@ -1428,14 +1428,14 @@ When both `eventDate` and one or more of `year`/`month`/`day` are given, they mu
   <col>
   <col>
   <col>
-  <col style="width: 2.5em;">
-  <col style="width: 3em;">
-  <col style="width: 2.5em;">
+  <col>
+  <col>
+  <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1448,9 +1448,9 @@ When both `eventDate` and one or more of `year`/`month`/`day` are given, they mu
   <th>day</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -1492,10 +1492,10 @@ When both `eventDate` and one or more of `year`/`month`/`day` are given, they mu
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1506,9 +1506,9 @@ When both `eventDate` and one or more of `year`/`month`/`day` are given, they mu
   <th>verbatimEventDate</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -1545,16 +1545,16 @@ When both `eventDate` and one or more of `year`/`month`/`day` are given, they mu
   <col>
   <col>
   <col>
-  <col style="width: 2.5em;">
-  <col style="width: 4em;">
-  <col style="width: 4em;">
+  <col>
+  <col>
+  <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1566,9 +1566,9 @@ When both `eventDate` and one or more of `year`/`month`/`day` are given, they mu
   <th>endDayOfYear</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
   <th class="outcome-header">start date</th>
   <th class="outcome-header">end date</th>
 </tr>
@@ -1646,12 +1646,12 @@ A single `eventTime` (e.g. `10:15:30`) sets only the start time. A range sets bo
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1661,9 +1661,9 @@ A single `eventTime` (e.g. `10:15:30`) sets only the start time. A range sets bo
   <th>eventTime</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
   <th class="outcome-header">start time</th>
   <th class="outcome-header">end time</th>
 </tr>
@@ -1733,10 +1733,10 @@ A value with the right shape but an out-of-range component (e.g. minute `75`) is
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1746,9 +1746,9 @@ A value with the right shape but an out-of-range component (e.g. minute `75`) is
   <th>eventTime</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -1797,11 +1797,11 @@ Geographic Location terms only apply when a row creates a *new* CollectingEvent 
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 6em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1813,9 +1813,9 @@ Geographic Location terms only apply when a row creates a *new* CollectingEvent 
   <th>county</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
   <th class="outcome-header">GeographicArea matched</th>
 </tr>
 </thead>
@@ -1860,11 +1860,11 @@ If the full combination of `county` + `stateProvince` + `country` doesn't match 
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 6em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1876,9 +1876,9 @@ If the full combination of `county` + `stateProvince` + `country` doesn't match 
   <th>county</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
   <th class="outcome-header">GeographicArea matched</th>
 </tr>
 </thead>
@@ -1928,10 +1928,10 @@ The behavior below is verified directly against `import_settings` and is what a 
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -1943,9 +1943,9 @@ The behavior below is verified directly against `import_settings` and is what a 
   <th>county</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -2000,11 +2000,11 @@ When `country` is blank but `countryCode` is present, a 2-letter (ISO 3166-1 alp
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 6em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2014,9 +2014,9 @@ When `country` is blank but `countryCode` is present, a 2-letter (ISO 3166-1 alp
   <th>countryCode</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
   <th class="outcome-header">GeographicArea matched</th>
 </tr>
 </thead>
@@ -2102,10 +2102,10 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2118,9 +2118,9 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <th>coordinateUncertaintyInMeters</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -2161,14 +2161,14 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <col>
   <col>
   <col>
-  <col style="width: 4em;">
-  <col style="width: 4em;">
-  <col style="width: 5em;">
+  <col>
+  <col>
+  <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2182,9 +2182,9 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <th>verbatimElevation</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -2246,10 +2246,10 @@ Row `occ-a`, `georeferencedBy: "Jane Smith"` with no `decimalLatitude`/`decimalL
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2259,9 +2259,9 @@ Row `occ-a`, `georeferencedBy: "Jane Smith"` with no `decimalLatitude`/`decimalL
   <th>decimalLatitude</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -2299,10 +2299,10 @@ Row `occ-a`, `georeferencedBy: "Jane Smith"` with no `decimalLatitude`/`decimalL
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2314,9 +2314,9 @@ Row `occ-a`, `georeferencedBy: "Jane Smith"` with no `decimalLatitude`/`decimalL
   <th>coordinateUncertaintyInMeters</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -2361,11 +2361,11 @@ A `typeStatus` value with no name attached (just the type word, e.g. `holotype`)
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2375,10 +2375,10 @@ A `typeStatus` value with no name attached (just the type word, e.g. `holotype`)
   <th>typeStatus</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Type<wbr>Materials created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">TypeMaterials created</th>
 </tr>
 </thead>
 <tbody>
@@ -2418,10 +2418,10 @@ The type word itself (`holotype`, `paratype`, `isotype`, etc.) must be legal for
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2431,9 +2431,9 @@ The type word itself (`holotype`, `paratype`, `isotype`, etc.) must be legal for
   <th>typeStatus</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -2501,10 +2501,10 @@ Row `occ-a`, `TW:TaxonDetermination:otu_id: "900001"`, `typeStatus: "holotype"`,
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2516,9 +2516,9 @@ Row `occ-a`, `TW:TaxonDetermination:otu_id: "900001"`, `typeStatus: "holotype"`,
   <th>identificationRemarks</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -2565,10 +2565,10 @@ A qualifier like `cf.` or `aff.` doesn't attach to the TaxonName itself &mdash; 
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2578,9 +2578,9 @@ A qualifier like `cf.` or `aff.` doesn't attach to the TaxonName itself &mdash; 
   <th>identificationQualifier</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -2654,16 +2654,16 @@ Beyond `scientificName` (which supplies genus and species-group ranks), the indi
   <col>
   <col>
   <col>
-  <col style="width: 4em;">
-  <col style="width: 5em;">
-  <col style="width: 3em;">
-  <col style="width: 5em;">
-  <col style="width: 4.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2677,9 +2677,9 @@ Beyond `scientificName` (which supplies genus and species-group ranks), the indi
   <th>family</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -2722,10 +2722,10 @@ Beyond `scientificName` (which supplies genus and species-group ranks), the indi
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2735,9 +2735,9 @@ Beyond `scientificName` (which supplies genus and species-group ranks), the indi
   <th>higherClassification</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -2813,17 +2813,17 @@ Each row also has its own `catalogNumber` and `recordNumber` (differing between 
 
 <table class="spec-table">
 <colgroup>
-  <col style="width: 3.5em;">
+  <col>
   <col>
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2833,11 +2833,11 @@ Each row also has its own `catalogNumber` and `recordNumber` (differing between 
   <th>scientificName</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
-  <th class="outcome-header">Record<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
+  <th class="outcome-header">RecordNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -2895,11 +2895,11 @@ Without an explicit `TW:Namespace:catalogNumber` column (see [catalogNumber name
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2911,10 +2911,10 @@ Without an explicit `TW:Namespace:catalogNumber` column (see [catalogNumber name
   <th>collectionCode</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -2985,11 +2985,11 @@ A namespace's short name plus a row's `catalogNumber` value together compute an 
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3000,10 +3000,10 @@ A namespace's short name plus a row's `catalogNumber` value together compute an 
   <th>TW:Namespace:catalogNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -3048,11 +3048,11 @@ Both the bare value (`100`) and the already-prefixed value (`ABC200`) import fin
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3063,10 +3063,10 @@ Both the bare value (`100`) and the already-prefixed value (`ABC200`) import fin
   <th>TW:Namespace:catalogNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -3115,18 +3115,18 @@ Unlike `occurrenceID`, `catalogNumber`'s Namespace is a real one you create and 
 
 <table class="spec-table">
 <colgroup>
-  <col style="width: 5em;">
+  <col>
   <col>
   <col>
   <col>
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3138,10 +3138,10 @@ Unlike `occurrenceID`, `catalogNumber`'s Namespace is a real one you create and 
   <th>TW:Namespace:catalogNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -3220,18 +3220,18 @@ This holds even when a `recordNumber` is being used to disambiguate items that s
 
 <table class="spec-table">
 <colgroup>
-  <col style="width: 5em;">
+  <col>
   <col>
   <col>
   <col>
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3243,10 +3243,10 @@ This holds even when a `recordNumber` is being used to disambiguate items that s
   <th>TW:Namespace:recordNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Record<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">RecordNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -3327,18 +3327,18 @@ Reusing an `eventID` value across two separate imports only shares the underlyin
 
 <table class="spec-table">
 <colgroup>
-  <col style="width: 3.5em;">
+  <col>
   <col>
   <col>
   <col>
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 6em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3350,10 +3350,10 @@ Reusing an `eventID` value across two separate imports only shares the underlyin
   <th>TW:Namespace:eventID</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Collecting<wbr>Event shared with</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CollectingEvent shared with</th>
 </tr>
 </thead>
 <tbody>
@@ -3438,11 +3438,11 @@ This only applies to a row with an *explicit* `TW:Namespace:eventID` &mdash; it 
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3453,10 +3453,10 @@ This only applies to a row with an *explicit* `TW:Namespace:eventID` &mdash; it 
   <th>TW:Namespace:eventID</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Event<wbr>identifier value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Eventidentifier value</th>
 </tr>
 </thead>
 <tbody>
@@ -3514,11 +3514,11 @@ Both the bare value (`100`) and the already-prefixed value (`EVT200`) import fin
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3529,10 +3529,10 @@ Both the bare value (`100`) and the already-prefixed value (`EVT200`) import fin
   <th>TW:Namespace:eventID</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Event<wbr>identifier value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Eventidentifier value</th>
 </tr>
 </thead>
 <tbody>
@@ -3594,18 +3594,18 @@ Unlike `eventID`, `fieldNumber` has no default-namespace fallback (see [fieldNum
 
 <table class="spec-table">
 <colgroup>
-  <col style="width: 3.5em;">
+  <col>
   <col>
   <col>
   <col>
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 6em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3617,10 +3617,10 @@ Unlike `eventID`, `fieldNumber` has no default-namespace fallback (see [fieldNum
   <th>TW:Namespace:fieldNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Collecting<wbr>Event shared with</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CollectingEvent shared with</th>
 </tr>
 </thead>
 <tbody>
@@ -3682,10 +3682,10 @@ When a row supplies both `eventID` and `fieldNumber`, both must agree about whic
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3698,9 +3698,9 @@ When a row supplies both `eventID` and `fieldNumber`, both must agree about whic
   <th>TW:Namespace:fieldNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -3756,10 +3756,10 @@ Row 1 establishes a CollectingEvent identified by both `eventID: "event-1"` and 
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3772,9 +3772,9 @@ Row 1 establishes a CollectingEvent identified by both `eventID: "event-1"` and 
   <th>TW:Namespace:fieldNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -3843,10 +3843,10 @@ Without an `eventID` or `fieldNumber` to match against, a new CollectingEvent is
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3856,9 +3856,9 @@ Without an `eventID` or `fieldNumber` to match against, a new CollectingEvent is
   <th>verbatimLocality</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -3918,12 +3918,12 @@ A setting, `Containerize specimen with existing ones when catalog number already
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -3934,11 +3934,11 @@ A setting, `Containerize specimen with existing ones when catalog number already
   <th>recordNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
-  <th class="outcome-header">Record<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
+  <th class="outcome-header">RecordNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -3995,12 +3995,12 @@ A row can reuse both the `catalogNumber` and the `recordNumber` of an item alrea
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4011,11 +4011,11 @@ A row can reuse both the `catalogNumber` and the `recordNumber` of an item alrea
   <th>recordNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
-  <th class="outcome-header">Record<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
+  <th class="outcome-header">RecordNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -4070,11 +4070,11 @@ A row can reuse both the `catalogNumber` and the `recordNumber` of an item alrea
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4084,10 +4084,10 @@ A row can reuse both the `catalogNumber` and the `recordNumber` of an item alrea
   <th>catalogNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -4133,17 +4133,17 @@ The same scenario as above, but as two separate imports rather than two rows in 
 
 <table class="spec-table">
 <colgroup>
-  <col style="width: 3.5em;">
+  <col>
   <col>
   <col>
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4154,10 +4154,10 @@ The same scenario as above, but as two separate imports rather than two rows in 
   <th>catalogNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -4206,19 +4206,19 @@ The disambiguated (recordNumber-present) case from above works identically acros
 
 <table class="spec-table">
 <colgroup>
-  <col style="width: 3.5em;">
+  <col>
   <col>
   <col>
   <col>
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4230,11 +4230,11 @@ The disambiguated (recordNumber-present) case from above works identically acros
   <th>recordNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
-  <th class="outcome-header">Record<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
+  <th class="outcome-header">RecordNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -4286,17 +4286,17 @@ The rejection from [Duplicate catalogNumber](#duplicate-catalognumber) holds acr
 
 <table class="spec-table">
 <colgroup>
-  <col style="width: 3.5em;">
+  <col>
   <col>
   <col>
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4307,10 +4307,10 @@ The rejection from [Duplicate catalogNumber](#duplicate-catalognumber) holds acr
   <th>catalogNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -4366,12 +4366,12 @@ A `recordNumber` value repeated on rows with two genuinely *different* `catalogN
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4382,11 +4382,11 @@ A `recordNumber` value repeated on rows with two genuinely *different* `catalogN
   <th>recordNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
-  <th class="outcome-header">Record<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
+  <th class="outcome-header">RecordNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -4439,15 +4439,15 @@ How the importer decides a row's `scientificName` refers to a TaxonName it's alr
 
 <table class="spec-table">
 <colgroup>
-  <col style="width: 5em;">
+  <col>
   <col>
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4457,9 +4457,9 @@ How the importer decides a row's `scientificName` refers to a TaxonName it's alr
   <th>scientificName</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -4528,10 +4528,10 @@ The same matching applies when the genus and species already existed before the 
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4540,9 +4540,9 @@ The same matching applies when the genus and species already existed before the 
   <th>scientificName</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -4579,10 +4579,10 @@ A `scientificName` doesn't have to spell out every rank to match. If the project
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4591,9 +4591,9 @@ A `scientificName` doesn't have to spell out every rank to match. If the project
   <th>scientificName</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -4649,10 +4649,10 @@ The same ambiguous data as above, but with `scientificNameAuthorship` provided. 
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4662,9 +4662,9 @@ The same ambiguous data as above, but with `scientificNameAuthorship` provided. 
   <th>scientificNameAuthorship</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -4714,10 +4714,10 @@ Matching `scientificNameAuthorship` against an existing name's author is an exac
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4727,9 +4727,9 @@ Matching `scientificNameAuthorship` against an existing name's author is an exac
   <th>scientificNameAuthorship</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
@@ -4981,11 +4981,11 @@ Only meaningful for a row whose `catalogNumber` collides with an existing one an
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -4996,10 +4996,10 @@ Only meaningful for a row whose `catalogNumber` collides with an existing one an
   <th>TW:Namespace:catalogNumber</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
-  <th class="outcome-header">Catalog<wbr>Number value</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
 </tr>
 </thead>
 <tbody>
@@ -5058,10 +5058,10 @@ By default, a `scientificName` (with or without `scientificNameAuthorship`) that
   <col>
   <col>
   <col style="width: 1em;">
-  <col style="width: 4.5em;">
-  <col style="width: 5em;">
-  <col style="width: 5.5em;">
-  <col style="width: 5.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -5071,9 +5071,9 @@ By default, a `scientificName` (with or without `scientificNameAuthorship`) that
   <th>scientificNameAuthorship</th>
   <th class="col-spacer">&nbsp;</th>
   <th class="outcome-header">status</th>
-  <th class="outcome-header">Taxon<wbr>Names created</th>
-  <th class="outcome-header">Collection<wbr>Objects created</th>
-  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
 </tr>
 </thead>
 <tbody>
