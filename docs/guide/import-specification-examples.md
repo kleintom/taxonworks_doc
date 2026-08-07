@@ -557,18 +557,19 @@ Covers the [Occurrence class](/guide/import#occurrence-class) terms: `occurrence
 
 ### Duplicate occurrenceID
 
-Yes &mdash; a second row reusing an `occurrenceID` already seen earlier in the same import errors, even if every other field is otherwise valid. `occurrenceID` is assigned as an identifier in a namespace that's auto-created once per import dataset (see [`occurrenceID` mapping](/guide/import#occurrence-class)) and shared by every row in the file, so a repeat value collides with the row that used it first.
+`occurrenceID`s are *import*-local: `occurrenceID` is assigned as an identifier in a namespace that's auto-created once per import dataset (see [`occurrenceID` mapping](/guide/import#occurrence-class)) and shared by every row in the file. So a repeated `occurrenceID` errors when it's a second row in the *same* import &mdash; even if every other field is otherwise valid &mdash; but reusing the exact same row again in a *separate* import doesn't collide at all, because that second import gets its own namespace. Unless something else about the row stops it (a colliding `catalogNumber`, for instance &mdash; see [Duplicate catalogNumber](#duplicate-catalognumber)), `occurrenceID` on its own will not stop a reimport across files.
 
-**Test spreadsheet:** [`duplicate_occurrence_id.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_occurrence_id.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/duplicate_occurrence_id.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/duplicate_occurrence_id.tsv">locally</a><br>
+**Test spreadsheet:** [`duplicate_occurrence_id.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_occurrence_id.tsv), [`occurrence_id_reuse_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_a.tsv), [`occurrence_id_reuse_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_b.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
 **Input:**
 - A fresh project &mdash; no pre-existing nomenclature is required.
 
-**Settings:** None (all defaults).
+**Settings:** None (all defaults), for all imports.
 
 <table class="spec-table">
 <colgroup>
+  <col>
   <col>
   <col>
   <col>
@@ -580,6 +581,7 @@ Yes &mdash; a second row reusing an `occurrenceID` already seen earlier in the s
 </colgroup>
 <thead>
 <tr>
+  <th>import</th>
   <th>occurrenceID</th>
   <th>basisOfRecord</th>
   <th>scientificName</th>
@@ -592,6 +594,7 @@ Yes &mdash; a second row reusing an `occurrenceID` already seen earlier in the s
 </thead>
 <tbody>
 <tr>
+  <td rowspan="2">same<br>import</td>
   <td>spec-001</td>
   <td>PreservedSpecimen</td>
   <td>Orotettix andeanus</td>
@@ -611,13 +614,34 @@ Yes &mdash; a second row reusing an `occurrenceID` already seen earlier in the s
   <td class="outcome-col">0</td>
   <td class="outcome-col">0</td>
 </tr>
+<tr>
+  <td rowspan="2">separate<br>imports</td>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>spec-001</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
 </tbody>
 </table>
 
-**Notes:** Row 2's error is `identifier: "spec-001 already taken"`. Row 2's CollectionObject and TaxonDetermination never actually persist &mdash; the entire row is undone when it errors, hence 0, not 1, in those columns above.
+**Notes:** All four rows are identical &mdash; same `occurrenceID`, same everything &mdash; the only difference is which file they're in. Within the same import, row 2 errors with `identifier: "spec-001 already taken"`; its CollectionObject and TaxonDetermination never actually persist &mdash; the entire row is undone when it errors, hence 0, not 1, in those columns above. Split across two separate imports, the identical row imports cleanly both times, because each import gets its own auto-generated `occurrenceID` namespace. The second import's TaxonNames-created column is 0, not 2, though: nomenclature matching isn't scoped per-import the way `occurrenceID` is &mdash; it's global to the project &mdash; so the second import matches the `Orotettix andeanus` that the first import already created rather than recreating it. Its CollectionObject and TaxonDetermination are still created fresh, since those aren't deduplicated by name.
 
-::: danger
-Row 2 also reports a second, spurious message: `identifier_object: "is invalid"`. This shouldn't be there &mdash; it's noise left over from how the rejection is currently implemented, not a second thing wrong with the row. Ignore it; the real problem is the one named above.
+::: warning
+Row 2 of the same-import pair also reports a second, spurious message: `identifier_object: "is invalid"`. This shouldn't be there &mdash; it's noise left over from how the rejection is currently implemented, not a second thing wrong with the row. Ignore it; the real problem is the one named above.
 :::
 
 ### catalogNumber namespace mechanics
@@ -783,7 +807,7 @@ Unlike `catalogNumber`, a `recordNumber` with no way to resolve a namespace does
 
 A `recordNumber` value is expected without its namespace's short-name prefix (see [details above](/guide/import#recordnumber-details)) &mdash; the prefix is added when computing the identifier, not stripped from what you provide. A value that already includes it is expected to be rejected, naming the mismatch, the same way [catalogNumber](#catalognumber-must-match-its-computed-identifier-verbatim) and [eventID](#eventid-must-match-its-computed-identifier-verbatim) reject a verbatim mismatch when their respective settings are enabled.
 
-::: danger
+::: warning
 TaxonWorks does not currently do this. `recordNumber: "DEF222"` in a Namespace `DEF` (delimiter `NONE`) &mdash; already including the prefix &mdash; imports successfully and computes an identifier of `DEFDEF222`: the prefix applied a second time, on top of the one already in the value. There is no setting that catches this, unlike `catalogNumber`/`eventID`, which are either tolerant of a given prefix by default or can be set to reject a mismatch explicitly. If a `recordNumber`-based identifier looks like it starts with its own namespace's short name twice, this is why.
 :::
 
@@ -962,7 +986,7 @@ Creates one unvetted `Person` per name, and always writes the raw column value i
 
 **Notes:** Rows 1 and 2 create a `Specimen`; row 3 creates a `Lot` (any `individualCount` &gt; 1 does). Rows 4 and 5 are correctly rejected.
 
-::: danger
+::: warning
 The rejection message for rows 4 and 5 is currently `total: ["Must be positive.", "total must be > 1"]` &mdash; it names the internal `total` field rather than `individualCount` (what you actually typed), and lists two overlapping complaints for the one value. It should instead name `individualCount` directly and say, plainly, that it can't be zero or negative.
 :::
 
@@ -1261,7 +1285,7 @@ Unlike `eventID`, `fieldNumber` has no default-namespace fallback: `TW:Namespace
 
 The same issue as [recordNumber given with its namespace prefix already included](#recordnumber-given-with-its-namespace-prefix-already-included) above, for `fieldNumber`.
 
-::: danger
+::: warning
 `fieldNumber: "FLD200"` in a Namespace `FLD` (delimiter `NONE`) &mdash; already including the prefix &mdash; imports successfully and computes an identifier of `FLDFLD200`, the same doubled-prefix problem `recordNumber` has, for the same underlying reason.
 :::
 
@@ -1704,7 +1728,7 @@ A single `eventTime` (e.g. `10:15:30`) sets only the start time. A range sets bo
 
 An `eventTime` value that doesn't fit the expected shape (a single time, or two times separated by `/`) is expected to error, naming the value that couldn't be parsed &mdash; the same way an unparseable `eventDate` does.
 
-::: danger
+::: warning
 TaxonWorks does not currently do this. Instead, the row imports successfully, and all of the CollectingEvent's time fields are left unset, with nothing in the row's status or messages indicating that the `eventTime` value was unusable. If you're relying on imported time-of-day data, this is worth checking for directly (e.g. reviewing CollectingEvents with no time fields set despite an `eventTime` column value being present) rather than assuming an `Imported` status means the value was understood.
 :::
 
@@ -1768,7 +1792,7 @@ A value with the right shape but an out-of-range component (e.g. minute `75`) is
 
 **Notes:** Row 1's error is `time_start_minute: ["not in range", "must be an integer between 0 and 59"]` &mdash; `75` isn't a valid minute. No CollectingEvent is created.
 
-::: danger
+::: warning
 The same value is flagged twice in slightly different words, and the row's error data also includes a spurious `collection_objects: "is invalid"` &mdash; noise left over from how the rejection cascades through the associated CollectionObject, the same kind of thing already noted for [Duplicate occurrenceID](#duplicate-occurrenceid). Ignore the extra messages; the real problem is `time_start_minute` being out of range.
 :::
 
@@ -1908,7 +1932,7 @@ If the full combination of `county` + `stateProvince` + `country` doesn't match 
 
 By default, when nothing matches (whether via the recursive search exhausting every combination, or a single exact-match attempt under the setting above), the row still imports &mdash; simply with no GeographicArea linked to its CollectingEvent. The `Error if no geographic area with provided name exists` setting makes that same situation an error instead.
 
-::: danger
+::: warning
 The behavior below is verified directly against `import_settings` and is what a conforming importer is expected to do. As currently wired, however, checking this box in the DwC Occurrence Import task's `Settings` panel does not reach it: the checkbox writes `require_geographic_area_exist` (singular), and the importer only ever reads `require_geographic_area_exists` (plural) &mdash; the two don't match, so toggling the checkbox has no effect. Until that's fixed, this setting is only reachable by setting `require_geographic_area_exists` directly (e.g. via the API).
 :::
 
@@ -2054,7 +2078,7 @@ When `country` is blank but `countryCode` is present, a 2-letter (ISO 3166-1 alp
 
 A `countryCode` that doesn't match any known country is expected to error, naming the unrecognized value.
 
-::: danger
+::: warning
 TaxonWorks does not currently do this. Resolving `countryCode` looks up a GeographicArea and immediately calls `.name` on the result with no check that anything was found. For an unrecognized code, the lookup returns nothing, and the row fails with a raw internal exception (`undefined method 'name' for nil`) rather than a normal import error &mdash; the row's status is `Failed` (not `Errored`), and its error data is a Ruby exception message and stack trace instead of a message naming the problem. If you see a row with status `Failed` after an import, this is one of the ways that can happen; check the `countryCode` column for typos.
 :::
 
@@ -2069,7 +2093,7 @@ TaxonWorks does not currently do this. Resolving `countryCode` looks up a Geogra
 
 A GeographicArea can optionally have a geographic shape (a polygon boundary) attached; this setting restricts matching to only GeographicAreas that do.
 
-::: danger
+::: warning
 Leaving this setting unconfigured &mdash; its normal, default state &mdash; does not mean "don't care whether the matched GeographicArea has a shape," as the setting's own name implies. It silently does the *opposite*: matching is restricted to GeographicAreas that do **not** have a shape, and a GeographicArea that does have one is never matched by default, at any level, unless a shapeless coarser ancestor happens to exist to fall back to. Since real, imported gazetteer data normally does have shapes, this can mean geographic matching silently fails (or falls back to the wrong, coarser GeographicArea) far more often than expected, for any project that hasn't explicitly turned this setting on. Confirmed by direct comparison: the identical GeographicArea, with a shape attached, is matched successfully when the setting is explicitly set to `true`, and never matched when the setting is left unset.
 :::
 
@@ -3136,83 +3160,7 @@ For a `scientificName` that's a single word (a uninomial, with no lower-rank inf
 
 ## Matching
 
-Cross-cutting matching/disambiguation behavior that doesn't belong to a single term &mdash; how the importer decides "is this the same thing I've already seen, or something new."
-
-### occurrenceID reused across separate imports
-
-A common real-world workflow: run an import, some rows error, fix the source file, re-run. Does re-running collide with the `occurrenceID`s that already imported successfully the first time? No &mdash; unlike a duplicate `occurrenceID` *within* one import (which errors, see [Occurrence](#occurrence) above), the same `occurrenceID` reused across two *separate* imports doesn't collide at all, because each import gets its own `occurrenceID` namespace (see [`occurrenceID` mapping](/guide/import#occurrence-class)).
-
-**Test spreadsheet:** [`occurrence_id_reuse_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_a.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_a.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_a.tsv">locally</a>, [`occurrence_id_reuse_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_b.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/occurrence_id_reuse_b.tsv">locally</a><br>
-**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
-
-Each row also has its own `catalogNumber` and `recordNumber` (differing between the two imports), to confirm reusing `occurrenceID` doesn't have knock-on effects for those other identifiers either &mdash; see [Duplicate catalogNumber](#duplicate-catalognumber) and [Duplicate recordNumber](#duplicate-recordnumber) below for what happens when *those* actually collide.
-
-**Input:**
-- A Namespace with short name `CATD` (delimiter `NONE`), for `catalogNumber`.
-- A Namespace with short name `RECD` (delimiter `NONE`), for `recordNumber`.
-
-**Settings:** None (all defaults), for both imports.
-
-<table class="spec-table">
-<colgroup>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col style="width: 1em;">
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-  <col>
-</colgroup>
-<thead>
-<tr>
-  <th>import</th>
-  <th>occurrenceID</th>
-  <th>basisOfRecord</th>
-  <th>scientificName</th>
-  <th class="col-spacer">&nbsp;</th>
-  <th class="outcome-header">status</th>
-  <th class="outcome-header">TaxonNames created</th>
-  <th class="outcome-header">CollectionObjects created</th>
-  <th class="outcome-header">TaxonDeterminations created</th>
-  <th class="outcome-header">CatalogNumber value</th>
-  <th class="outcome-header">RecordNumber value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>A</td>
-  <td>spec-shared</td>
-  <td>PreservedSpecimen</td>
-  <td>Orotettix andeanus</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">CATD700</td>
-  <td class="outcome-col">RECDRA</td>
-</tr>
-<tr>
-  <td>B</td>
-  <td>spec-shared</td>
-  <td>PreservedSpecimen</td>
-  <td>Sphenarium purpurascens</td>
-  <td class="col-spacer">&nbsp;</td>
-  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
-  <td class="outcome-col">2</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">1</td>
-  <td class="outcome-col">CATD800</td>
-  <td class="outcome-col">RECDRB</td>
-</tr>
-</tbody>
-</table>
-
-**Notes:** Both rows use `occurrenceID: spec-shared`, but they're in two separate import datasets (two separate spreadsheets, `A` and `B`, run independently), each producing its own `Identifier` namespace &mdash; contrast with [Duplicate occurrenceID](#duplicate-occurrenceid), where the collision is specifically because both rows share one namespace by being in the *same* import. `catalogNumber` and `recordNumber`, by contrast, use a real project Namespace you create yourself (not an auto-generated per-import one) &mdash; whether *those* collide across imports depends on whether their values actually collide, not on which import they came from. See below.
+Cross-cutting matching/disambiguation behavior that doesn't belong to a single term &mdash; how the importer decides "is this the same thing I've already seen, or something new." (`occurrenceID`'s own same-import-vs-separate-imports matching behavior is covered under [Duplicate occurrenceID](#duplicate-occurrenceid) in [Occurrence](#occurrence), alongside `catalogNumber`'s and `recordNumber`'s for contrast.)
 
 ### catalogNumber namespace resolution via institutionCode/collectionCode
 
@@ -4958,7 +4906,7 @@ A `scientificName` doesn't have to spell out every rank to match. If the project
 
 If a genus has two subgenera that each contain a species with the identical name (e.g. `Camponotus (Tanaemyrmex) americanus (Mayr, 1862)` and `Camponotus (Myrmentoma) americanus (Emery, 1893)`), a `scientificName` of just `Camponotus americanus`, with nothing to tell the two apart, is ambiguous. It's expected to error, naming the candidates.
 
-::: danger
+::: warning
 TaxonWorks does not currently do this. Instead, the row imports successfully, and its TaxonDetermination silently matches the bare genus (`Camponotus`) &mdash; not either species, and not even the subgenus. Nothing in the row's status or messages indicates that anything was lost; the only sign is that the determination is coarser than the `scientificName` you provided. If you're relying on species-level determinations, this is worth checking for directly (e.g. reviewing determinations left at genus rank) rather than assuming an `Imported` status means the full name resolved.
 :::
 
@@ -5342,7 +5290,7 @@ This is the same underlying ambiguity as [Ambiguous subgenus homonym, no disambi
 
 If everything above resolves to a Protonym (or a bare type word is used) but the resulting TypeMaterial itself fails validation &mdash; for example, its Protonym isn't species-rank, which `TypeMaterial` requires &mdash; the row is expected to still import, simply without a TypeMaterial. This is the described purpose of leaving `Error records with unprocessable typeStatus information` off (the default): a best-effort attempt at type designation that doesn't hold up the rest of the row if it doesn't work out.
 
-::: danger
+::: warning
 TaxonWorks does not currently do this. Building the (about-to-fail) TypeMaterial attaches it, in memory, to its CollectionObject's `type_materials` association before the failed validation is ever checked. That in-memory association is itself re-validated moments later as a side effect of saving the row's `occurrenceID` identifier, and the row errors &mdash; but with a message, `identifier_object: "is invalid"`, that has no connection to `typeStatus`, `TypeMaterial`, or the actual problem. If you see this specific error on a row that includes `typeStatus`, check whether the type designation itself is the real cause (e.g. whether the row's name resolved to species rank at all) &mdash; the message won't tell you.
 :::
 
