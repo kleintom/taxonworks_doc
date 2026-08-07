@@ -2219,14 +2219,104 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `decimalLatitude: "40.11"`, `decimalLongitude: "-88.20"`, `georeferencedBy: "Jane Smith"`, imports and attaches a `georeferencedBy: "Jane Smith"` data attribute to the row's Georeference.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>decimalLatitude</th>
+  <th>decimalLongitude</th>
+  <th>georeferencedBy</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>40.11</td>
+  <td>-88.20</td>
+  <td>Jane Smith</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** A `georeferencedBy: "Jane Smith"` data attribute is attached to the row's Georeference.
 
 ##### georeferencedBy without decimalLatitude/decimalLongitude
 
 **Test spreadsheet:** [`georeferenced_by_without_coordinates.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/georeferenced_by_without_coordinates.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/georeferenced_by_without_coordinates.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/georeferenced_by_without_coordinates.tsv">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
-Row `occ-a`, `georeferencedBy: "Jane Smith"` with no `decimalLatitude`/`decimalLongitude`, imports, but `georeferencedBy` has no effect &mdash; no Georeference exists for a row without coordinates (see [decimalLatitude without decimalLongitude](#decimallatitude-without-decimallongitude) below), so there's nothing to attach the data attribute to. The `georeferencedBy` Predicate is still created in the project regardless, even though it ends up unused by this row.
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>georeferencedBy</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Jane Smith</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** With no `decimalLatitude`/`decimalLongitude`, `georeferencedBy` has no effect &mdash; no Georeference exists for a row without coordinates (see [decimalLatitude without decimalLongitude](#decimallatitude-without-decimallongitude) below), so there's nothing to attach the data attribute to. The `georeferencedBy` Predicate is still created in the project regardless, even though it ends up unused by this row.
 
 #### decimalLatitude without decimalLongitude
 
@@ -2465,7 +2555,47 @@ Beyond the type word being legal, `typeStatus` as a whole must fit one of two sh
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `typeStatus: "holotype and some other stuff"`, errors with `typeStatus: "Unprocessable typeStatus information"`.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>typeStatus</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>holotype and some other stuff</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's error is `typeStatus: "Unprocessable typeStatus information"`.
 
 ### typeStatus is ignored when TW:TaxonDetermination:otu_id is used
 
@@ -2479,7 +2609,48 @@ Row `occ-a`, `typeStatus: "holotype and some other stuff"`, errors with `typeSta
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `TW:TaxonDetermination:otu_id: "900001"`, `typeStatus: "holotype"`, imports normally &mdash; 0 TypeMaterials are created.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>TW:TaxonDetermination:otu_id</th>
+  <th>typeStatus</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">TypeMaterials created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>900001</td>
+  <td>holotype</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
 
 ### identifiedBy, dateIdentified, and identificationRemarks
 
@@ -2542,10 +2713,54 @@ Row `occ-a`, `TW:TaxonDetermination:otu_id: "900001"`, `typeStatus: "holotype"`,
 
 ### dateIdentified as a range
 
-Test spreadsheet: [`date_identified_range.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/date_identified_range.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/date_identified_range.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/date_identified_range.tsv">locally</a><br>
-Test code: [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+**Test spreadsheet:** [`date_identified_range.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/date_identified_range.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/date_identified_range.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/date_identified_range.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
-Row `occ-a`, `dateIdentified: "1999-07-04/1999-08-01"`, errors with `dateIdentified: "Date range for taxon determination is not supported."` &mdash; unlike `eventDate` (see [eventDate: single value vs. a range](#eventdate-single-value-vs-a-range)), a TaxonDetermination has only one made-date, not a start and end.
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>dateIdentified</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>1999-07-04/1999-08-01</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's error is `dateIdentified: "Date range for taxon determination is not supported."` &mdash; unlike `eventDate` (see [eventDate: single value vs. a range](#eventdate-single-value-vs-a-range)), a TaxonDetermination has only one made-date, not a start and end.
 
 ### identificationQualifier
 
@@ -2770,14 +2985,98 @@ For a `scientificName` that's a single word (a uninomial, with no lower-rank inf
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `scientificName: "Camponotini"`, `taxonRank: "tribe"`, imports and creates `Camponotini` at tribe rank &mdash; not genus rank, which a bare uninomial would otherwise default to.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>taxonRank</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotini</td>
+  <td>tribe</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** `Camponotini` is created at tribe rank &mdash; not genus rank, which a bare uninomial would otherwise default to.
 
 #### Invalid taxonRank
 
 **Test spreadsheet:** [`taxon_rank_invalid.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/taxon_rank_invalid.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/taxon_rank_invalid.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/taxon_rank_invalid.tsv">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
-Row `occ-a`, `scientificName: "Camponotus"`, `taxonRank: "nonsenserank"`, errors with `taxonRank: "Unknown ICZN rank nonsenserank"`.
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>taxonRank</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus</td>
+  <td>nonsenserank</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's error is `taxonRank: "Unknown ICZN rank nonsenserank"`.
 
 ### genus and specificEpithet columns are ignored
 
@@ -2790,7 +3089,50 @@ Row `occ-a`, `scientificName: "Camponotus"`, `taxonRank: "nonsenserank"`, errors
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `scientificName: "Camponotus americanus"`, `genus: "WrongGenus"`, `specificEpithet: "wrongepithet"`, imports and creates TaxonNames `Camponotus` and `americanus` &mdash; matching `scientificName` exactly. Neither `WrongGenus` nor `wrongepithet` is created; the column values are silently ignored.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>genus</th>
+  <th>specificEpithet</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>WrongGenus</td>
+  <td>wrongepithet</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** TaxonNames `Camponotus` and `americanus` are created, matching `scientificName` exactly. Neither `WrongGenus` nor `wrongepithet` is created; the column values are silently ignored.
 
 ## Matching
 
@@ -4769,7 +5111,50 @@ If the name given exactly matches a Protonym's original combination (the name it
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `scientificName: "Camponotus americanus"`, `typeStatus: "holotype of Formica americanus"`, imports and creates 1 TypeMaterial, matched to `Camponotus americanus` &mdash; its current name, even though the `typeStatus` value names its original combination.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>typeStatus</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">TypeMaterials created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>holotype of Formica americanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The TypeMaterial is matched to `Camponotus americanus` &mdash; its current name, even though the `typeStatus` value names its original combination.
 
 ::: tip
 Matching against an original combination is an exact string match against the name as stored, including grammatical gender agreement (e.g. `Formica` is grammatically feminine, so a species originally described in it would have a feminine-agreeing epithet). A `typeStatus` value that doesn't reproduce that exactly &mdash; the correct genus but ungendered or misgendered epithet &mdash; won't match this way, though it may still be picked up by the [wildcard subgenus match](#typestatus-wildcard-subgenus-match) below if the genus/subgenus portion alone is unambiguous.
@@ -4788,7 +5173,50 @@ If the name isn't an original combination match, names linked to the row's deter
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `scientificName: "Camponotus americanus"`, `typeStatus: "holotype of Formica nigra"`, imports and creates 1 TypeMaterial, matched to the synonym `Formica nigra` &mdash; not to `Camponotus americanus`, the name the row's own TaxonDetermination points to.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>typeStatus</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">TypeMaterials created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>holotype of Formica nigra</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The TypeMaterial is matched to the synonym `Formica nigra` &mdash; not to `Camponotus americanus`, the name the row's own TaxonDetermination points to.
 
 #### typeStatus wildcard subgenus match
 
@@ -4805,7 +5233,50 @@ Failing an original-combination or synonym match, a genus-plus-species name (no 
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `scientificName: "Camponotus nearcticus"`, `typeStatus: "holotype of Camponotus americanus"`, imports and creates 1 TypeMaterial, matched to the subgenus-nested `Camponotus (Tanaemyrmex) americanus` &mdash; despite `typeStatus` omitting the subgenus entirely.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>typeStatus</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">TypeMaterials created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus nearcticus</td>
+  <td>holotype of Camponotus americanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The TypeMaterial is matched to the subgenus-nested `Camponotus (Tanaemyrmex) americanus` &mdash; despite `typeStatus` omitting the subgenus entirely. 1 new TaxonName is created (`nearcticus`, from the row's own `scientificName`; `Camponotus` itself already exists from the Input).
 
 **Ambiguous (two homonym candidates):**
 
@@ -4818,7 +5289,50 @@ Row `occ-a`, `scientificName: "Camponotus nearcticus"`, `typeStatus: "holotype o
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, same as above but with both homonyms present, errors with `typeStatus: ["Could not identify or disambiguate name Camponotus americanus.", ..., "Multiple names returned in wildcard search: [id: ... Mayr, 1862], [id: ... Emery, 1893]"]`, naming both candidates. No TypeMaterial is created.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>typeStatus</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">TypeMaterials created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus nearcticus</td>
+  <td>holotype of Camponotus americanus</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's error is `typeStatus: ["Could not identify or disambiguate name Camponotus americanus.", ..., "Multiple names returned in wildcard search: [id: ... Mayr, 1862], [id: ... Emery, 1893]"]`, naming both candidates.
 
 ::: tip
 This is the same underlying ambiguity as [Ambiguous subgenus homonym, no disambiguating information](#ambiguous-subgenus-homonym-no-disambiguating-information) in Name matching &mdash; but here, unlike there, it's handled correctly: the row is rejected outright, naming both candidates, rather than silently matching something coarser.
@@ -4858,14 +5372,98 @@ Attaches an arbitrary, project-defined Predicate (a custom attribute) to the row
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `TW:DataAttribute:CollectionObject:ageInDays: "5"`, imports and attaches a data attribute (predicate `ageInDays`, value `5`) to the CollectionObject.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>TW:DataAttribute:CollectionObject:ageInDays</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>5</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The CollectionObject gets a data attribute using the `ageInDays` predicate, value `5`.
 
 #### TW:DataAttribute: predicate not found
 
 **Test spreadsheet:** [`tw_data_attribute_predicate_not_found.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_data_attribute_predicate_not_found.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/tw_data_attribute_predicate_not_found.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_data_attribute_predicate_not_found.tsv">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
-Row `occ-a`, `TW:DataAttribute:CollectionObject:nonexistentPredicate: "5"`, errors with `tw:dataattribute:collectionobject:nonexistentpredicate: "Predicate with nonexistentpredicate URI or name not found"` &mdash; the whole column header, lowercased, names the field in the error.
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>TW:DataAttribute:CollectionObject:nonexistentPredicate</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>5</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's error is `tw:dataattribute:collectionobject:nonexistentpredicate: "Predicate with nonexistentpredicate URI or name not found"` &mdash; the whole column header, lowercased, names the field in the error.
 
 ### TW:BiocurationGroup:&lt;group&gt;
 
@@ -4883,7 +5481,47 @@ The correct syntax is a single colon: `TW:BiocurationGroup:<group>`. (An earlier
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `TW:BiocurationGroup:Caste: "Queen"`, imports and creates a BiocurationClassification of `Queen` on the CollectionObject.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>TW:BiocurationGroup:Caste</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Queen</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The CollectionObject gets a BiocurationClassification of `Queen`.
 
 #### TW:BiocurationGroup: group not found
 
@@ -4892,7 +5530,51 @@ Unlike `sex`, which auto-creates its BiocurationGroup and any new BiocurationCla
 **Test spreadsheet:** [`tw_biocuration_group_not_found.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_biocuration_group_not_found.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/tw_biocuration_group_not_found.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_biocuration_group_not_found.tsv">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
-Row `occ-a`, `TW:BiocurationGroup:Nonexistent: "Queen"`, errors with `tw:biocurationgroup:nonexistent: "Biocuration group with 'nonexistent' URI or name not found"`.
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>TW:BiocurationGroup:Nonexistent</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Queen</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's error is `tw:biocurationgroup:nonexistent: "Biocuration group with 'nonexistent' URI or name not found"`.
 
 ### Automatic mapping when a project predicate URI matches a DwC term
 
@@ -4906,7 +5588,47 @@ If your project has a custom Predicate registered (via Project Preferences) for 
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `language: "en"` &mdash; an ordinary DwC column, no `TW:` prefix &mdash; imports and attaches a data attribute using the `my custom language field` predicate, with value `en`, even though the predicate's own name has nothing to do with the column header.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>language</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>en</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** `language` is an ordinary DwC column, no `TW:` prefix. The CollectionObject gets a data attribute using the project's own `my custom language field` predicate, value `en` &mdash; even though the predicate's own name has nothing to do with the column header.
 
 ### TW:&lt;model_class&gt;:&lt;field&gt; direct field mapping
 
@@ -4919,7 +5641,47 @@ An advanced escape hatch: sets a specific CollectionObject or CollectingEvent mo
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `TW:CollectingEvent:verbatim_label: "Some Locality, 3-IV-1999, J. Smith"`, imports and sets the CollectingEvent's `verbatim_label` field to that value directly.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>TW:CollectingEvent:verbatim_label</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Some Locality, 3-IV-1999, J. Smith</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The CollectingEvent's `verbatim_label` field is set to that value directly.
 
 #### TW:&lt;model_class&gt;:&lt;field&gt; naming a field that is not allowed
 
@@ -4928,7 +5690,51 @@ Only an explicit allow-list of fields per model is accepted (see the reference l
 **Test spreadsheet:** [`tw_direct_field_mapping_invalid.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_direct_field_mapping_invalid.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/tw_direct_field_mapping_invalid.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_direct_field_mapping_invalid.tsv">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
-Row `occ-a`, `TW:CollectingEvent:not_a_real_field: "whatever"`, errors with `tw:collectingevent:not_a_real_field: "not_a_real_field is not a valid CollectingEvent attribute"`.
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>TW:CollectingEvent:not_a_real_field</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>whatever</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's error is `tw:collectingevent:not_a_real_field: "not_a_real_field is not a valid CollectingEvent attribute"`.
 
 ### TW:Tag:&lt;class&gt;:&lt;selector&gt;
 
@@ -4946,7 +5752,47 @@ Applies an existing Keyword as a tag on the row's CollectionObject or Collecting
 
 **Settings:** None (all defaults).
 
-Row `occ-a`, `TW:Tag:CollectionObject:Reviewed: "true"`, imports and applies the `Reviewed` tag to the CollectionObject.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>TW:Tag:CollectionObject:Reviewed</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>true</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The `Reviewed` tag is applied to the CollectionObject.
 
 #### TW:Tag: "false" and an invalid value
 
@@ -4955,7 +5801,60 @@ Row `occ-a`, `TW:Tag:CollectionObject:Reviewed: "true"`, imports and applies the
 
 **Input:** Same Keyword `Reviewed`, for both rows.
 
-Row `occ-a`, value `"false"`, imports without applying the tag. Row `occ-b`, value `"maybe"`, errors with `TW:Tag:CollectionObject:Reviewed: "Tag value must be \"true\" or \"1\" to apply, or blank, \"false\", or \"0\", to not apply"`.
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>TW:Tag:CollectionObject:Reviewed</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>false</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>maybe</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1 imports without applying the tag. Row 2's error is `TW:Tag:CollectionObject:Reviewed: "Tag value must be \"true\" or \"1\" to apply, or blank, \"false\", or \"0\", to not apply"`.
 
 ## Settings
 
