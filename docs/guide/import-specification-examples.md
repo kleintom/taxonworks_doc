@@ -74,6 +74,7 @@ Terms about the collecting event &mdash; when and under what circumstances the o
   <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>habitat</code></a>
   <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>samplingProtocol</code></a>
   <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>fieldNotes</code></a>
+  <a class="term-chip" href="#eventremarks-verbatimlocality-and-elevation-terms"><code>eventRemarks</code></a>
 </div>
 
 ### Location terms
@@ -89,6 +90,11 @@ Terms about the place the occurrence was recorded.
   <a class="term-chip" href="#decimallatitude-decimallongitude"><code>decimalLongitude</code></a>
   <a class="term-chip" href="#decimallatitude-decimallongitude"><code>geodeticDatum</code></a>
   <a class="term-chip" href="#decimallatitude-decimallongitude"><code>coordinateUncertaintyInMeters</code></a>
+  <a class="term-chip" href="#eventremarks-verbatimlocality-and-elevation-terms"><code>verbatimLocality</code></a>
+  <a class="term-chip" href="#eventremarks-verbatimlocality-and-elevation-terms"><code>minimumElevationInMeters</code></a>
+  <a class="term-chip" href="#eventremarks-verbatimlocality-and-elevation-terms"><code>maximumElevationInMeters</code></a>
+  <a class="term-chip" href="#eventremarks-verbatimlocality-and-elevation-terms"><code>verbatimElevation</code></a>
+  <a class="term-chip" href="#georeferencedby"><code>georeferencedBy</code></a>
 </div>
 
 ### Identification terms
@@ -100,6 +106,7 @@ Terms about the taxonomic determination of the occurrence.
   <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>identifiedBy</code></a>
   <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>dateIdentified</code></a>
   <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>identificationRemarks</code></a>
+  <a class="term-chip" href="#identificationqualifier"><code>identificationQualifier</code></a>
 </div>
 
 ### Taxon terms
@@ -2124,6 +2131,91 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
 
 **Notes:** The CollectingEvent's `verbatim_latitude`, `verbatim_longitude`, and `verbatim_datum` store `40.11`, `-88.20`, and `WGS84` respectively, unmodified. `coordinateUncertaintyInMeters` is stored two different ways: as `50m` (with a unit suffix) on the CollectingEvent's own `verbatim_geolocation_uncertainty`, and as the plain number `50` on the separately-created Georeference's `error_radius`. A Georeference is only created when both latitude and longitude are present; see next.
 
+#### eventRemarks, verbatimLocality, and elevation terms
+
+`eventRemarks` becomes a note on the CollectingEvent. `verbatimLocality`, `minimumElevationInMeters`, `maximumElevationInMeters`, and `verbatimElevation` are each stored verbatim, unrelated to the `country`/`stateProvince`/`county` matching above &mdash; none of them affect (or are affected by) GeographicArea resolution.
+
+**Test spreadsheet:** [`location_and_event_pass_through_terms.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/location_and_event_pass_through_terms.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/location_and_event_pass_through_terms.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 4em;">
+  <col style="width: 4em;">
+  <col style="width: 5em;">
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>eventRemarks</th>
+  <th>verbatimLocality</th>
+  <th>minimumElevationInMeters</th>
+  <th>maximumElevationInMeters</th>
+  <th>verbatimElevation</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>trail was muddy</td>
+  <td>2 km N of Springfield</td>
+  <td>100</td>
+  <td>150</td>
+  <td>100-150m</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** `minimumElevationInMeters`/`maximumElevationInMeters` are stored as numbers (`100`, `150`); `verbatimElevation` is stored as the literal string `100-150m`, unrelated to whether it's itself a parseable range.
+
+#### georeferencedBy
+
+`georeferencedBy` is stored as a data attribute on the Georeference created from `decimalLatitude`/`decimalLongitude` (see above), using a Predicate matching its DwC term URI (`http://rs.tdwg.org/dwc/terms/georeferencedBy`) &mdash; created automatically the first time it's needed.
+
+**Test spreadsheet:** [`georeferenced_by.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/georeferenced_by.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/georeferenced_by.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `decimalLatitude: "40.11"`, `decimalLongitude: "-88.20"`, `georeferencedBy: "Jane Smith"`, imports and attaches a `georeferencedBy: "Jane Smith"` data attribute to the row's Georeference.
+
+##### georeferencedBy without decimalLatitude/decimalLongitude
+
+**Test spreadsheet:** [`georeferenced_by_without_coordinates.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/georeferenced_by_without_coordinates.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/georeferenced_by_without_coordinates.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+Row `occ-a`, `georeferencedBy: "Jane Smith"` with no `decimalLatitude`/`decimalLongitude`, imports, but `georeferencedBy` has no effect &mdash; no Georeference exists for a row without coordinates (see [decimalLatitude without decimalLongitude](#decimallatitude-without-decimallongitude) below), so there's nothing to attach the data attribute to. The `georeferencedBy` Predicate is still created in the project regardless, even though it ends up unused by this row.
+
 #### decimalLatitude without decimalLongitude
 
 `decimalLatitude` and `decimalLongitude` are expected together; providing only one is rejected rather than accepted as a partial coordinate.
@@ -2442,6 +2534,59 @@ Test spreadsheet: [`date_identified_range.tsv`](https://github.com/SpeciesFileGr
 Test code: [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
 Row `occ-a`, `dateIdentified: "1999-07-04/1999-08-01"`, errors with `dateIdentified: "Date range for taxon determination is not supported."` &mdash; unlike `eventDate` (see [eventDate: single value vs. a range](#eventdate-single-value-vs-a-range)), a TaxonDetermination has only one made-date, not a start and end.
+
+### identificationQualifier
+
+A qualifier like `cf.` or `aff.` doesn't attach to the TaxonName itself &mdash; it creates (or reuses) a second, separate OTU for the same TaxonName, with the qualifier as that OTU's own `name`, and determines the row to *that* OTU rather than the plain one.
+
+**Test spreadsheet:** [`identification_qualifier.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/identification_qualifier.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/identification_qualifier.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>identificationQualifier</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>cf.</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The species TaxonName `americanus` ends up with 2 OTUs: the plain one (`name: nil`, created alongside the TaxonName itself) and a second one with `name: "cf."`. The row's TaxonDetermination points at the qualified OTU, not the plain one.
 
 ### Enable searching for Organization name in determinedBy field
 
