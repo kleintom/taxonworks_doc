@@ -2138,6 +2138,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <col>
   <col>
   <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2153,6 +2154,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <th class="outcome-header">TaxonNames created</th>
   <th class="outcome-header">CollectionObjects created</th>
   <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Georeferences created</th>
 </tr>
 </thead>
 <tbody>
@@ -2167,6 +2169,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <td class="col-spacer">&nbsp;</td>
   <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
   <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
   <td class="outcome-col">1</td>
   <td class="outcome-col">1</td>
 </tr>
@@ -2264,6 +2267,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <col>
   <col>
   <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2278,6 +2282,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <th class="outcome-header">TaxonNames created</th>
   <th class="outcome-header">CollectionObjects created</th>
   <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Georeferences created</th>
 </tr>
 </thead>
 <tbody>
@@ -2291,6 +2296,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <td class="col-spacer">&nbsp;</td>
   <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
   <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
   <td class="outcome-col">1</td>
   <td class="outcome-col">1</td>
 </tr>
@@ -2319,6 +2325,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <col>
   <col>
   <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2331,6 +2338,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <th class="outcome-header">TaxonNames created</th>
   <th class="outcome-header">CollectionObjects created</th>
   <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Georeferences created</th>
 </tr>
 </thead>
 <tbody>
@@ -2344,6 +2352,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <td class="outcome-col">2</td>
   <td class="outcome-col">1</td>
   <td class="outcome-col">1</td>
+  <td class="outcome-col">0</td>
 </tr>
 </tbody>
 </table>
@@ -2372,6 +2381,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <col>
   <col>
   <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2384,6 +2394,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <th class="outcome-header">TaxonNames created</th>
   <th class="outcome-header">CollectionObjects created</th>
   <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Georeferences created</th>
 </tr>
 </thead>
 <tbody>
@@ -2394,6 +2405,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <td>40.11</td>
   <td class="col-spacer">&nbsp;</td>
   <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
   <td class="outcome-col">0</td>
   <td class="outcome-col">0</td>
   <td class="outcome-col">0</td>
@@ -2425,6 +2437,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <col>
   <col>
   <col>
+  <col>
 </colgroup>
 <thead>
 <tr>
@@ -2439,6 +2452,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <th class="outcome-header">TaxonNames created</th>
   <th class="outcome-header">CollectionObjects created</th>
   <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Georeferences created</th>
 </tr>
 </thead>
 <tbody>
@@ -2451,6 +2465,7 @@ Leaving this setting unconfigured &mdash; its normal, default state &mdash; does
   <td>not-a-number</td>
   <td class="col-spacer">&nbsp;</td>
   <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
   <td class="outcome-col">0</td>
   <td class="outcome-col">0</td>
   <td class="outcome-col">0</td>
