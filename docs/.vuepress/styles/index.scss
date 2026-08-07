@@ -70,6 +70,38 @@
   --content-width: 1600px;
 }
 
+// Term index (Import Specification Examples page): a dwc.tdwg.org/terms-style
+// grid of "chip" links, one per supported DwC/TW term, grouped by class.
+// Each chip jumps straight to that term's canonical worked example.
+.term-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin: 1em 0 2em;
+}
+
+.term-chip {
+  display: inline-block;
+  padding: 0.35em 0.9em;
+  border-radius: 0.25rem;
+  border: 1px solid var(--vp-c-accent);
+  background: transparent;
+  text-decoration: none;
+  font-size: 0.9em;
+  color: var(--vp-c-text);
+  transition: background-color 0.15s ease;
+
+  code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+  }
+
+  &:hover {
+    background: var(--vp-c-accent-soft);
+  }
+}
+
 .figure-left {
   text-align: left;
 }

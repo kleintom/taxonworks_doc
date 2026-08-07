@@ -27,6 +27,114 @@ The "locally" links below point at `http://localhost:4747/...`, a tiny static fi
 Fixture files: [on GitHub](https://github.com/SpeciesFileGroup/taxonworks/tree/development/spec/files/import_datasets/occurrences/specification) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification">locally</a>.
 Their automated assertions: [`occurrence_specification_spec.rb` on GitHub](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>.
 
+## Term index
+
+Every DwC (and TaxonWorks-specific) term with a worked example below, grouped the way [dwc.tdwg.org/terms](https://dwc.tdwg.org/terms/) groups them, by class. Click a term to jump straight to its canonical example. This isn't the full list of terms the importer recognizes &mdash; see [DwC term mapping](/guide/import#dwc-term-mapping) for that &mdash; only the ones illustrated with a specification example so far.
+
+### Record-level terms
+
+Terms that describe the record itself, independent of any organism, occurrence, or place.
+
+<div class="term-index">
+  <a class="term-chip" href="#type-defaults"><code>type</code></a>
+  <a class="term-chip" href="#catalognumber-namespace-resolution-via-institutioncode-collectioncode"><code>institutionCode</code></a>
+  <a class="term-chip" href="#catalognumber-namespace-resolution-via-institutioncode-collectioncode"><code>collectionCode</code></a>
+  <a class="term-chip" href="#basisofrecord-defaults"><code>basisOfRecord</code></a>
+</div>
+
+### Occurrence terms
+
+Terms recording the occurrence of an organism at a place and time &mdash; here, the specimen or lot itself.
+
+<div class="term-index">
+  <a class="term-chip" href="#duplicate-occurrenceid"><code>occurrenceID</code></a>
+  <a class="term-chip" href="#catalognumber-namespace-mechanics"><code>catalogNumber</code></a>
+  <a class="term-chip" href="#recordnumber-namespace-mechanics"><code>recordNumber</code></a>
+  <a class="term-chip" href="#recordedby"><code>recordedBy</code></a>
+  <a class="term-chip" href="#individualcount"><code>individualCount</code></a>
+  <a class="term-chip" href="#sex"><code>sex</code></a>
+  <a class="term-chip" href="#preparations"><code>preparations</code></a>
+</div>
+
+### Event terms
+
+Terms about the collecting event &mdash; when and under what circumstances the occurrence was recorded.
+
+<div class="term-index">
+  <a class="term-chip" href="#eventid-namespace-mechanics"><code>eventID</code></a>
+  <a class="term-chip" href="#fieldnumber-namespace-mechanics"><code>fieldNumber</code></a>
+  <a class="term-chip" href="#eventdate-single-value-vs-a-range"><code>eventDate</code></a>
+  <a class="term-chip" href="#eventtime-single-value-vs-a-range"><code>eventTime</code></a>
+  <a class="term-chip" href="#startdayofyear-and-enddayofyear"><code>startDayOfYear</code></a>
+  <a class="term-chip" href="#startdayofyear-and-enddayofyear"><code>endDayOfYear</code></a>
+  <a class="term-chip" href="#year-month-and-day-columns-as-an-alternative-to-eventdate"><code>year</code></a>
+  <a class="term-chip" href="#year-month-and-day-columns-as-an-alternative-to-eventdate"><code>month</code></a>
+  <a class="term-chip" href="#year-month-and-day-columns-as-an-alternative-to-eventdate"><code>day</code></a>
+  <a class="term-chip" href="#verbatimeventdate"><code>verbatimEventDate</code></a>
+  <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>habitat</code></a>
+  <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>samplingProtocol</code></a>
+  <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>fieldNotes</code></a>
+</div>
+
+### Location terms
+
+Terms about the place the occurrence was recorded.
+
+<div class="term-index">
+  <a class="term-chip" href="#country-stateprovince-county-resolve-to-a-geographicarea"><code>county</code></a>
+  <a class="term-chip" href="#country-stateprovince-county-resolve-to-a-geographicarea"><code>stateProvince</code></a>
+  <a class="term-chip" href="#country-stateprovince-county-resolve-to-a-geographicarea"><code>country</code></a>
+  <a class="term-chip" href="#countrycode-as-a-fallback-for-country"><code>countryCode</code></a>
+  <a class="term-chip" href="#decimallatitude-decimallongitude"><code>decimalLatitude</code></a>
+  <a class="term-chip" href="#decimallatitude-decimallongitude"><code>decimalLongitude</code></a>
+  <a class="term-chip" href="#decimallatitude-decimallongitude"><code>geodeticDatum</code></a>
+  <a class="term-chip" href="#decimallatitude-decimallongitude"><code>coordinateUncertaintyInMeters</code></a>
+</div>
+
+### Identification terms
+
+Terms about the taxonomic determination of the occurrence.
+
+<div class="term-index">
+  <a class="term-chip" href="#typestatus-minimum-matching-the-current-name"><code>typeStatus</code></a>
+  <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>identifiedBy</code></a>
+  <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>dateIdentified</code></a>
+  <a class="term-chip" href="#identifiedby-dateidentified-and-identificationremarks"><code>identificationRemarks</code></a>
+</div>
+
+### Taxon terms
+
+Terms naming the taxon the occurrence was determined to be.
+
+<div class="term-index">
+  <a class="term-chip" href="#minimum-required-fields-matching-by-otu-instead"><code>TW:TaxonDetermination:otu_id</code></a>
+  <a class="term-chip" href="#minimum-required-fields"><code>scientificName</code></a>
+  <a class="term-chip" href="#ambiguous-subgenus-homonym-disambiguated-by-scientificnameauthorship"><code>scientificNameAuthorship</code></a>
+  <a class="term-chip" href="#typestatus-illegal-for-the-nomenclatural-code"><code>nomenclaturalCode</code></a>
+  <a class="term-chip" href="#kingdom-phylum-class-order-and-family-columns"><code>kingdom</code></a>
+  <a class="term-chip" href="#kingdom-phylum-class-order-and-family-columns"><code>phylum</code></a>
+  <a class="term-chip" href="#kingdom-phylum-class-order-and-family-columns"><code>class</code></a>
+  <a class="term-chip" href="#kingdom-phylum-class-order-and-family-columns"><code>order</code></a>
+  <a class="term-chip" href="#kingdom-phylum-class-order-and-family-columns"><code>family</code></a>
+  <a class="term-chip" href="#higherclassification"><code>higherClassification</code></a>
+  <a class="term-chip" href="#taxonrank"><code>taxonRank</code></a>
+  <a class="term-chip" href="#genus-and-specificepithet-columns-are-ignored"><code>genus</code></a>
+  <a class="term-chip" href="#genus-and-specificepithet-columns-are-ignored"><code>subgenus</code></a>
+  <a class="term-chip" href="#genus-and-specificepithet-columns-are-ignored"><code>specificEpithet</code></a>
+  <a class="term-chip" href="#genus-and-specificepithet-columns-are-ignored"><code>infraspecificEpithet</code></a>
+</div>
+
+### TaxonWorks-specific terms
+
+`TW:`-prefixed columns are TaxonWorks' own extensions, not DwC terms &mdash; mainly used to pair an identifier-bearing DwC term with the Namespace it belongs to. See [Namespaces](/guide/import#namespaces) for the underlying concept.
+
+<div class="term-index">
+  <a class="term-chip" href="#catalognumber-namespace-mechanics"><code>TW:Namespace:catalogNumber</code></a>
+  <a class="term-chip" href="#recordnumber-namespace-mechanics"><code>TW:Namespace:recordNumber</code></a>
+  <a class="term-chip" href="#eventid-namespace-mechanics"><code>TW:Namespace:eventID</code></a>
+  <a class="term-chip" href="#fieldnumber-namespace-mechanics"><code>TW:Namespace:fieldNumber</code></a>
+</div>
+
 ## Minimum required fields
 
 The smallest file the importer will accept &mdash; just `occurrenceID`, `basisOfRecord`, and `scientificName`.
@@ -2236,6 +2344,230 @@ Row `occ-a`, `typeStatus: "holotype and some other stuff"`, errors with `typeSta
 **Settings:** None (all defaults).
 
 Row `occ-a`, `TW:TaxonDetermination:otu_id: "900001"`, `typeStatus: "holotype"`, imports normally &mdash; 0 TypeMaterials are created.
+
+### identifiedBy, dateIdentified, and identificationRemarks
+
+`identifiedBy` is matched to people the same way [`recordedBy`](#recordedby) is, and assigned as a determiner of the row's TaxonDetermination. `dateIdentified` is parsed the same way `eventDate` is, with one difference: a `/`-separated range isn't supported here (see [next](#dateidentified-as-a-range)). `identificationRemarks` is stored as a note on the TaxonDetermination.
+
+**Test spreadsheet:** [`identification_and_event_pass_through_terms.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/identification_and_event_pass_through_terms.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/identification_and_event_pass_through_terms.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>identifiedBy</th>
+  <th>dateIdentified</th>
+  <th>identificationRemarks</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Jane Smith</td>
+  <td>1999-07-04</td>
+  <td>looks typical</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The row also includes `habitat: "rainforest canopy"`, `samplingProtocol: "hand collecting"`, and `fieldNotes: "saw many nests"` (omitted from the table above for space) &mdash; each stored verbatim on the CollectingEvent, unrelated to the Identification-class terms. `identifiedBy` resolves to a `Jane Smith` determiner on the TaxonDetermination (an unvetted Person, matched/created the same way `recordedBy` is). `dateIdentified` sets the TaxonDetermination's `year_made`/`month_made`/`day_made` to `1999`/`7`/`4`. `identificationRemarks` becomes a note reading `looks typical` on the TaxonDetermination.
+
+### dateIdentified as a range
+
+Test spreadsheet: [`date_identified_range.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/date_identified_range.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/date_identified_range.tsv">locally</a><br>
+Test code: [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+Row `occ-a`, `dateIdentified: "1999-07-04/1999-08-01"`, errors with `dateIdentified: "Date range for taxon determination is not supported."` &mdash; unlike `eventDate` (see [eventDate: single value vs. a range](#eventdate-single-value-vs-a-range)), a TaxonDetermination has only one made-date, not a start and end.
+
+## Taxon
+
+Terms naming the taxon an occurrence is determined to be. See [Minimum required fields](#minimum-required-fields) for the base case (`scientificName` alone) and [Name matching](#name-matching) in [Matching](#matching) below for how a name is matched to (or disambiguated against) existing nomenclature; this section covers the individual rank columns, `higherClassification`, and `taxonRank`.
+
+### kingdom, phylum, class, order, and family columns
+
+Beyond `scientificName` (which supplies genus and species-group ranks), the individual higher-rank columns each create a protonym at that rank &mdash; unless one by that name already exists &mdash; nested in rank order.
+
+**Test spreadsheet:** [`taxon_rank_columns.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/taxon_rank_columns.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/taxon_rank_columns.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col style="width: 4em;">
+  <col style="width: 5em;">
+  <col style="width: 3em;">
+  <col style="width: 5em;">
+  <col style="width: 4.5em;">
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>kingdom</th>
+  <th>phylum</th>
+  <th>class</th>
+  <th>order</th>
+  <th>family</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Animalia</td>
+  <td>Arthropoda</td>
+  <td>Insecta</td>
+  <td>Hymenoptera</td>
+  <td>Formicidae</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">7</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** All 7 TaxonNames are created: the 5 named by columns plus `Camponotus` and `americanus` from `scientificName`, nested `Animalia` &rarr; `Arthropoda` &rarr; `Insecta` &rarr; `Hymenoptera` &rarr; `Formicidae` &rarr; `Camponotus` &rarr; `americanus`. `superfamily`, `subfamily`, `tribe`, and `subtribe` columns work the same way, at their respective ranks, if provided.
+
+### higherClassification
+
+`higherClassification` is a single delimited string of ancestor names (separated by `|`, `:`, `;`, or `,`) rather than one column per rank. Unlike the individual rank columns above, it does not create ranks above family-group (family, subfamily, tribe, subtribe) &mdash; those must already exist in the project, matched by name.
+
+**Test spreadsheet:** [`higher_classification.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/higher_classification.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/higher_classification.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- TaxonNames `Animalia` (kingdom) &rarr; `Arthropoda` (phylum) &rarr; `Insecta` (class) &rarr; `Hymenoptera` (order).
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>higherClassification</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Animalia&#124;Arthropoda&#124;Insecta&#124;Hymenoptera&#124;Formicidae</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">3</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Only 3 TaxonNames are created &mdash; `Formicidae` (family-group, newly created under the pre-existing `Hymenoptera`), plus `Camponotus` and `americanus` from `scientificName`. `Animalia`, `Arthropoda`, and `Insecta`, already present, are matched rather than recreated.
+
+If a name listed in `higherClassification` above family-group doesn't already exist, the row errors instead of creating it: `Animalia: "Rank for Animalia could not be determined. Please create this taxon name manually and retry."` This differs from the individual `kingdom`/`phylum`/`class`/`order` columns, which *do* create names at those same ranks freely (see [kingdom, phylum, class, order, and family columns](#kingdom-phylum-class-order-and-family-columns) above) &mdash; `higherClassification` is deliberately more conservative above family-group, since a single delimited string carries less explicit rank information per name than a dedicated column does.
+
+### taxonRank
+
+For a `scientificName` that's a single word (a uninomial, with no lower-rank information to infer a rank from), `taxonRank` sets the rank explicitly rather than leaving it to default to genus.
+
+**Test spreadsheet:** [`taxon_rank_overrides_uninomial.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/taxon_rank_overrides_uninomial.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/taxon_rank_overrides_uninomial.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `scientificName: "Camponotini"`, `taxonRank: "tribe"`, imports and creates `Camponotini` at tribe rank &mdash; not genus rank, which a bare uninomial would otherwise default to.
+
+#### Invalid taxonRank
+
+**Test spreadsheet:** [`taxon_rank_invalid.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/taxon_rank_invalid.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/taxon_rank_invalid.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+Row `occ-a`, `scientificName: "Camponotus"`, `taxonRank: "nonsenserank"`, errors with `taxonRank: "Unknown ICZN rank nonsenserank"`.
+
+### genus and specificEpithet columns are ignored
+
+`genus`, `subgenus`, `specificEpithet`, and `infraspecificEpithet` are recognized DwC terms, but TaxonWorks extracts this information from `scientificName` directly rather than from these columns &mdash; their values, if present, are never read.
+
+**Test spreadsheet:** [`genus_specific_epithet_ignored.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/genus_specific_epithet_ignored.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/genus_specific_epithet_ignored.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `scientificName: "Camponotus americanus"`, `genus: "WrongGenus"`, `specificEpithet: "wrongepithet"`, imports and creates TaxonNames `Camponotus` and `americanus` &mdash; matching `scientificName` exactly. Neither `WrongGenus` nor `wrongepithet` is created; the column values are silently ignored.
 
 ## Matching
 
