@@ -5379,7 +5379,7 @@ Each `Settings` toggle is documented here with the minimal data that makes it me
 
 Only meaningful for a row whose `catalogNumber` collides with an existing one and which has no `recordNumber` &mdash; if a `recordNumber` is present, containerization already happens regardless of this setting (see [Containers](#containers)).
 
-**Test spreadsheet:** [`duplicate_catalog_number_same_import.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_catalog_number_same_import.tsv) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/duplicate_catalog_number_same_import.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/duplicate_catalog_number_same_import.tsv">locally</a><br>
+**Test spreadsheet:** [`duplicate_catalog_number_same_import.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/duplicate_catalog_number_same_import.tsv) (Off), [`container_no_record_number_setting_enabled.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/container_no_record_number_setting_enabled.tsv) (On) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/files/import_datasets/occurrences/specification/container_no_record_number_setting_enabled.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; [this branch](https://github.com/kleintom/taxonworks/blob/dwc_importer_specification_specs/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
 **Input:**
@@ -5448,7 +5448,64 @@ Only meaningful for a row whose `catalogNumber` collides with an existing one an
 
 Row 2 errors with `catalogNumber: "Is already in use"` &mdash; a colliding `catalogNumber` with nothing to disambiguate it is rejected by default.
 
-**On:** with the setting enabled, row 2 above instead imports and is containerized alongside row 1 &mdash; that's the entire purpose of the setting, an opt-in trade-off: the two items end up sharing one `Container` with no `recordNumber` on either to tell them apart afterward. See [Containers &gt; containerize_dup_cat_no enabled, without a recordNumber](#containerize-dup-cat-no-enabled-without-a-recordnumber) for the full worked example.
+**On:** (a different fixture: two rows with the same `catalogNumber`, neither with a `recordNumber`, in a Namespace with short name `CAT`)
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>catalogNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">CatalogNumber value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>1100</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT1100</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>1100</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">CAT1100</td>
+</tr>
+</tbody>
+</table>
+
+Both rows import and are containerized together in one `Container` &mdash; that's the entire purpose of the setting, an opt-in trade-off: neither row has a `recordNumber`, so zero `Identifier::Local::RecordNumber`s exist afterward and the two items in the container aren't individually identifiable by identifier, though each remains its own separate CollectionObject record. See [Containers &gt; containerize_dup_cat_no enabled, without a recordNumber](#containerize-dup-cat-no-enabled-without-a-recordnumber) for this same example in context alongside the setting's other container-related interactions.
 
 ### Restrict import to existing nomenclature only
 
@@ -5461,7 +5518,49 @@ By default, a `scientificName` (with or without `scientificNameAuthorship`) that
 - TaxonNames `Camponotus` (genus) &rarr; `Tanaemyrmex` (subgenus) &rarr; `americanus` (Mayr, 1862), and `Camponotus` &rarr; `Myrmentoma` (subgenus) &rarr; `americanus` (Emery, 1893).
 - The same row as [scientificNameAuthorship with a typo matches no existing candidate](#scientificnameauthorship-with-a-typo-matches-no-existing-candidate): `scientificName: "Camponotus americanus"`, `scientificNameAuthorship: "Emory"` &mdash; a typo of the existing `Emery, 1893` species, matching neither existing candidate.
 
-**Off (default):** the row imports, creating a new species TaxonName. See the full worked example at [scientificNameAuthorship with a typo matches no existing candidate](#scientificnameauthorship-with-a-typo-matches-no-existing-candidate).
+**Off (default):**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>scientificNameAuthorship</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Emory</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+The row imports, creating a new species TaxonName (placed directly under the genus, not under either existing subgenus &mdash; see [scientificNameAuthorship with a typo matches no existing candidate](#scientificnameauthorship-with-a-typo-matches-no-existing-candidate) for the full detail on why the typo'd author creates a new homonym instead of matching or erroring).
 
 **On:**
 
@@ -5821,9 +5920,103 @@ The setting's own label says "determinedBy", but it's `identifiedBy` it actually
 **Input:**
 - An Organization named `Field Museum`.
 
-**Off (default):** row `occ-a`, `identifiedBy: "Field Museum"`, imports; no Organization is checked, and the value is run through person-name parsing regardless of the Organization sharing its exact name.
+**Off (default):**
 
-**On:** the same row instead matches the Organization `Field Museum` directly, assigning it (not a parsed person) as the TaxonDetermination's determiner.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>identifiedBy</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Determiner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Field Museum</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">Person: "Field"</td>
+</tr>
+</tbody>
+</table>
+
+No Organization is checked, so `identifiedBy` is run through person-name parsing regardless of the Organization sharing its exact name.
+
+::: warning
+The parsed person's `last_name` is `"Field"` &mdash; `"Museum"` is silently dropped from the name entirely, confirmed empirically. This isn't specific to Organization names; it's a property of the underlying person-name parser (the same one [`recordedBy`](#recordedby) uses), just easy to notice here since `identifiedBy` also happens to hold an Organization's own name.
+:::
+
+**On:**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>identifiedBy</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Determiner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>Field Museum</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">Organization: "Field Museum"</td>
+</tr>
+</tbody>
+</table>
+
+The same row instead matches the Organization `Field Museum` directly by its exact `name`, assigning it (not a parsed person) as the TaxonDetermination's determiner &mdash; no `Person` is created at all.
 
 ### Also search for Organization alternate name
 
@@ -5837,9 +6030,103 @@ Only meaningful with the setting above also enabled. By default, an Organization
 
 **Settings:** `Enable searching for Organization name in determinedBy field` on for both rows below.
 
-**Off (default):** row `occ-a`, `identifiedBy: "FM"`, imports; `FM` doesn't match the Organization's `name` (`Field Museum`), and its `alternate_name` isn't checked, so no Organization is matched.
+**Off (default):**
 
-**On:** the same row instead matches the Organization via its `alternate_name`.
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>identifiedBy</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Determiner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>FM</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+</tbody>
+</table>
+
+`FM` doesn't match the Organization's `name` (`Field Museum`), and its `alternate_name` isn't checked, so no Organization is matched.
+
+::: warning
+With Organization searching on but no match found, the row is left with *no* determiner at all &mdash; confirmed empirically (`determiners` and `determiners_organization` are both empty). It does **not** fall back to person-name parsing the way `identifiedBy` normally would with the setting off entirely (see [Enable searching for Organization name in determinedBy field](#enable-searching-for-organization-name-in-determinedby-field) above) &mdash; `"FM"` is simply discarded.
+:::
+
+**On:**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>identifiedBy</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">Determiner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Camponotus americanus</td>
+  <td>FM</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">Organization: "Field Museum"</td>
+</tr>
+</tbody>
+</table>
+
+The same row instead matches the Organization via its `alternate_name` (`FM`).
 
 ### Only search for the finest geographical name provided
 
@@ -5904,7 +6191,58 @@ If the full combination of `county` + `stateProvince` + `country` doesn't match 
 
 `county` doesn't match, so it's dropped and `stateProvince` + `country` is tried, matching `Illinois`.
 
-**On:** with the setting enabled, the same row instead imports with no GeographicArea matched at all &mdash; the full `county` + `stateProvince` + `country` combination is tried exactly once, and since it doesn't match, nothing is matched. This isn't an error by itself; see the next section for the setting that makes an unmatched combination an error.
+**On:**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>country</th>
+  <th>stateProvince</th>
+  <th>county</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+  <th class="outcome-header">GeographicArea matched</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>United States</td>
+  <td>Illinois</td>
+  <td>Nonexistent County</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+</tbody>
+</table>
+
+With the setting enabled, the same row instead imports with no GeographicArea matched at all &mdash; the full `county` + `stateProvince` + `country` combination is tried exactly once, and since it doesn't match, nothing is matched. This isn't an error by itself; see the next section for the setting that makes an unmatched combination an error.
 
 ### Error if no geographic area with provided name exists
 
@@ -5967,5 +6305,53 @@ The behavior below is verified directly against `import_settings` and is what a 
 </tbody>
 </table>
 
-**On:** the same row instead errors, with `country, stateProvince, county: "GeographicArea with location levels county:Nowhere County, state_province:Nowhere State, country:Nowhereland not found."` &mdash; no CollectionObject or CollectingEvent persists.
+**On:**
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col>
+  <col>
+  <col>
+  <col>
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>country</th>
+  <th>stateProvince</th>
+  <th>county</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">TaxonNames created</th>
+  <th class="outcome-header">CollectionObjects created</th>
+  <th class="outcome-header">TaxonDeterminations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>Nowhereland</td>
+  <td>Nowhere State</td>
+  <td>Nowhere County</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+The same row instead errors, with `country, stateProvince, county: "GeographicArea with location levels county:Nowhere County, state_province:Nowhere State, country:Nowhereland not found."` &mdash; no CollectionObject or CollectingEvent persists.
 
