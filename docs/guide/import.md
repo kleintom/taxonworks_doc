@@ -1480,9 +1480,510 @@ The mirror image of `sex`: `preparations` must match an existing `PreparationTyp
 
 **Notes:** Row 2's error is `preparations: "Unknown preparation \"spread\". If it is correct please add it to preparation types and retry."` No new `PreparationType` is created &mdash; only 1 exists after import (the pre-existing `pinned`), not 2.
 
+#### Collecting Event
+
+A CollectingEvent is created for (or shared by, see [Matching](#matching)) every imported row; there is no minimum set of Event-class fields required to create one.
+
+##### eventID namespace mechanics
+
+Unlike `catalogNumber`, an `eventID` with no `TW:Namespace:eventID` column value doesn't stage as NotReady, and doesn't error either: a default Namespace private to this import dataset is created automatically and used for every such row, so the `eventID` &mdash; Identifier::Local::Event mapping still works out of the box. A `TW:Namespace:eventID` value, when given, is used instead of the default.
+
+**Test spreadsheet:** [`event_id_namespace.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_id_namespace.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_id_namespace.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `EVT` and delimiter `NONE`.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>eventID</th>
+  <th>TW:Namespace:eventID</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Event<wbr>identifier value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">eventID:100</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>200</td>
+  <td>EVT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">EVT200</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's identifier value shows the shape of the default namespace: a fixed `eventID` prefix joined with `:`. The default namespace is scoped to this import dataset &mdash; a second import with the same blank `TW:Namespace:eventID` column reuses the same default namespace, so `eventID` values remain comparable within a dataset even when it's never explicitly configured (see [eventID reused across separate imports](#eventid-reused-across-separate-imports)).
+
+##### fieldNumber namespace mechanics
+
+Unlike `eventID`, `fieldNumber` has no default-namespace fallback: `TW:Namespace:fieldNumber` is the only path to a namespace, and a `fieldNumber` given without one errors outright at import time, the same way `recordNumber` does.
+
+**Test spreadsheet:** [`field_number_namespace.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/field_number_namespace.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/field_number_namespace.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `FLD` and delimiter `NONE`.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>fieldNumber</th>
+  <th>TW:Namespace:fieldNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">FieldNumber<wbr>identifier value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>200</td>
+  <td>FLD</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">FLD200</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Row 1's error is `TW:Namespace:fieldNumber: "Namespace not found"` &mdash; naming the missing companion column, not `fieldNumber` itself.
+
+##### Event date
+
+A CollectingEvent's start and end dates can come from `eventDate` (a single ISO 8601 date, or a `/`-separated range), from the individual `year`/`month`/`day` columns, or from `year` combined with `startDayOfYear`/`endDayOfYear`. These sources are cross-checked against each other where they overlap, not merged silently.
+
+###### eventDate: single value vs. a range
+
+A single `eventDate` (e.g. `1983-10-25`) sets only the start date. A range, expressed as two ISO 8601 dates separated by `/` (e.g. `2020-11-30/2020-12-04`), sets both the start and end date.
+
+**Test spreadsheet:** [`event_date_single_and_range.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_date_single_and_range.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_date_single_and_range.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>eventDate</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">start date</th>
+  <th class="outcome-header">end date</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>1983-10-25</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1983-10-25</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>2020-11-30/2020-12-04</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">2020-11-30</td>
+  <td class="outcome-col">2020-12-04</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The second date in a range may also be abbreviated, omitting the higher-order elements it shares with the first (for example `2020-11-30/12-04` or `2020-11-30/04`), per the [ISO 8601 time interval](https://en.wikipedia.org/wiki/ISO_8601#Time_intervals) convention.
+
+###### year, month, and day columns as an alternative to eventDate
+
+When no `eventDate` is given, `year`, `month`, and `day` populate the start date directly.
+
+**Test spreadsheet:** [`event_date_year_month_day.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_date_year_month_day.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_date_year_month_day.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col style="width: 2.5em;">
+  <col style="width: 3em;">
+  <col style="width: 2.5em;">
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>year</th>
+  <th>month</th>
+  <th>day</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">start date</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>1999</td>
+  <td>7</td>
+  <td>4</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1999-07-04</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** `year`, `month`, and `day` may each be given independently; any subset populates just those parts of the start date.
+
+###### eventDate conflicts with year, month, and/or day
+
+When both `eventDate` and one or more of `year`/`month`/`day` are given, they must agree; a mismatch on any of the three is rejected rather than one silently overriding the other.
+
+**Test spreadsheet:** [`event_date_conflict.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_date_conflict.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_date_conflict.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 2.5em;">
+  <col style="width: 3em;">
+  <col style="width: 2.5em;">
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>eventDate</th>
+  <th>year</th>
+  <th>month</th>
+  <th>day</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>1999-07-04</td>
+  <td>1999</td>
+  <td>7</td>
+  <td>5</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** `day: 5` disagrees with the `4` implied by `eventDate: "1999-07-04"`. The row errors with `eventDate: "Conflicting values. Please check year, month, and day match eventDate"`, and no CollectingEvent is created.
+
+###### verbatimEventDate
+
+`verbatimEventDate` is stored as-is, independent of whether `eventDate` and/or `year`/`month`/`day` are also given and successfully parsed.
+
+**Test spreadsheet:** [`event_date_verbatim.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_date_verbatim.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_date_verbatim.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>eventDate</th>
+  <th>verbatimEventDate</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>1999-07-04</td>
+  <td>summer of '99</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** The CollectingEvent's start date parses to `1999-07-04` as usual, and its verbatim date is stored as the literal string `summer of '99`, unrelated to whether that string is itself a parseable date.
+
+###### startDayOfYear and endDayOfYear
+
+`startDayOfYear`/`endDayOfYear` express the date as an ordinal day count within `year` (day 1 = January 1st) rather than a calendar month/day; each requires `year` to be given, since an ordinal day is meaningless without knowing the year.
+
+**Test spreadsheet:** [`event_start_end_day_of_year.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_start_end_day_of_year.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_start_end_day_of_year.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col style="width: 2.5em;">
+  <col style="width: 4em;">
+  <col style="width: 4em;">
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>year</th>
+  <th>startDayOfYear</th>
+  <th>endDayOfYear</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">start date</th>
+  <th class="outcome-header">end date</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>2000</td>
+  <td>60</td>
+  <td>65</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">2000-02-29</td>
+  <td class="outcome-col">2000-03-05</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>2000</td>
+  <td>60</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">2000-02-29</td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+<tr>
+  <td>occ-c</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td><em>(blank)</em></td>
+  <td><em>(blank)</em></td>
+  <td>60</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col"><em>(none)</em></td>
+  <td class="outcome-col"><em>(none)</em></td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** 2000 is a leap year, so day 60 is February 29th (not March 1st, as it would be in a non-leap year) &mdash; row a's day 65 correspondingly lands on March 5th. Row c errors with `endDayOfYear: "Missing year value"`, the same message `startDayOfYear` gives under the same condition.
+
 #### Matching
 
-Cross-cutting matching/disambiguation behavior that doesn't belong to a single term &mdash; how the importer decides "is this the same thing I've already seen, or something new." As more of these accumulate, expect this group to grow its own Record-level/Occurrence/Event-class subdivisions the same way the sections above did; for now there's one.
+Cross-cutting matching/disambiguation behavior that doesn't belong to a single term &mdash; how the importer decides "is this the same thing I've already seen, or something new."
 
 ##### occurrenceID reused across separate imports
 
@@ -1996,6 +2497,422 @@ This holds even when a `recordNumber` is being used to disambiguate items that s
 </table>
 
 **Notes:** All four rows import; both pairs create two separate RecordNumber identifiers carrying the identical value. See [Containers](#containers) directly below for the one situation where a repeated `recordNumber` value is actually a problem.
+
+##### Collecting Event
+
+Whether a row shares an existing CollectingEvent or creates a new one is decided entirely by `eventID` and/or `fieldNumber` matching an existing identifier &mdash; never by comparing other Event- or Location-class field values (see [No eventID or fieldNumber given](#no-eventid-or-fieldnumber-given) below).
+
+###### eventID reused across separate imports
+
+Reusing an `eventID` value across two separate imports only shares the underlying CollectingEvent when both imports resolve it through the same Namespace. Left to the default (no `TW:Namespace:eventID` column value), each import gets its own private Namespace (see [eventID namespace mechanics](#eventid-namespace-mechanics)), so the same `eventID` value in two different imports resolves to two different, unrelated CollectingEvents. An explicit, shared `TW:Namespace:eventID` avoids this, the same way an explicit shared Namespace lets `catalogNumber`/`recordNumber` values do the same (see [catalogNumber namespace resolution via institutionCode/collectionCode](#catalognumber-namespace-resolution-via-institutioncode-collectioncode)).
+
+**Test spreadsheet:** [`event_id_reuse_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_id_reuse_a.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_id_reuse_a.tsv">locally</a>, [`event_id_reuse_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_id_reuse_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_id_reuse_b.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `EVT`, delimiter `NONE`.
+
+**Settings:** None (all defaults), for both imports.
+
+<table class="spec-table">
+<colgroup>
+  <col style="width: 3.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 6em;">
+</colgroup>
+<thead>
+<tr>
+  <th>import</th>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>eventID</th>
+  <th>TW:Namespace:eventID</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Collecting<wbr>Event shared with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td rowspan="2">A</td>
+  <td>occ-a1</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>100</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col"><em>(nothing, new CE)</em></td>
+</tr>
+<tr>
+  <td>occ-a2</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>200</td>
+  <td>EVT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col"><em>(nothing, new CE)</em></td>
+</tr>
+<tr>
+  <td rowspan="2">B</td>
+  <td>occ-b1</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>100</td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col"><em>(nothing, new CE)</em></td>
+</tr>
+<tr>
+  <td>occ-b2</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>200</td>
+  <td>EVT</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">occ-a2</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** All four rows import, and 3 CollectingEvents are created in total. `occ-a1` and `occ-b1` share the identical `eventID` value `100`, but each is left to its import's own default Namespace, so they resolve to two separate CollectingEvents. `occ-a2` and `occ-b2` share `eventID` value `200` through the same explicit `EVT` Namespace in both imports, so `occ-b2` reuses `occ-a2`'s CollectingEvent instead of creating a new one.
+
+###### fieldNumber reused across separate imports
+
+Unlike `eventID`, `fieldNumber` has no default-namespace fallback (see [fieldNumber namespace mechanics](#fieldnumber-namespace-mechanics)) &mdash; a `TW:Namespace:fieldNumber` value is always required, and is necessarily shared across imports that use the same Namespace. Reusing a `fieldNumber` value (in the same Namespace) across separate imports therefore always shares the CollectingEvent.
+
+**Test spreadsheet:** [`field_number_reuse_a.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/field_number_reuse_a.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/field_number_reuse_a.tsv">locally</a>, [`field_number_reuse_b.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/field_number_reuse_b.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/field_number_reuse_b.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `FLD`, delimiter `NONE`.
+
+**Settings:** None (all defaults), for both imports.
+
+<table class="spec-table">
+<colgroup>
+  <col style="width: 3.5em;">
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 6em;">
+</colgroup>
+<thead>
+<tr>
+  <th>import</th>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>fieldNumber</th>
+  <th>TW:Namespace:fieldNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+  <th class="outcome-header">Collecting<wbr>Event shared with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>A</td>
+  <td>occ-a1</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>500</td>
+  <td>FLD</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col"><em>(nothing, new CE)</em></td>
+</tr>
+<tr>
+  <td>B</td>
+  <td>occ-b1</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>500</td>
+  <td>FLD</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">occ-a1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Both rows import; only 1 CollectingEvent and 1 FieldNumber identifier exist afterward.
+
+###### eventID and fieldNumber refer to inconsistent collecting events
+
+When a row supplies both `eventID` and `fieldNumber`, both must agree about which CollectingEvent is meant. Two distinct inconsistencies are possible, and both are rejected rather than silently resolved one way or the other.
+
+**fieldNumber does not match a previously established collecting event:**
+
+**Test spreadsheet:** [`event_field_number_partial_mismatch.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_field_number_partial_mismatch.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_field_number_partial_mismatch.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `EVT`, delimiter `NONE`, for `eventID`.
+- A Namespace with short name `FLD`, delimiter `NONE`, for `fieldNumber`.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>eventID</th>
+  <th>TW:Namespace:eventID</th>
+  <th>fieldNumber</th>
+  <th>TW:Namespace:fieldNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>event-1</td>
+  <td>EVT</td>
+  <td>1</td>
+  <td>FLD</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>event-1</td>
+  <td>EVT</td>
+  <td>2</td>
+  <td>FLD</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+Row 1 establishes a CollectingEvent identified by both `eventID: "event-1"` and `fieldNumber: "1"`. Row 2 reuses the same `eventID`, correctly resolving to that same CollectingEvent, but pairs it with a `fieldNumber` (`"2"`) never seen before &mdash; an inconsistent claim about the same event. Row 2 errors with `eventID/fieldNumber: "does not match previous definition of collecting event"`, and only 1 CollectingEvent exists afterward.
+
+**eventID and fieldNumber each already belong to a different, previously established collecting event:**
+
+**Test spreadsheet:** [`event_field_number_conflicting_ce.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/event_field_number_conflicting_ce.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/event_field_number_conflicting_ce.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** Same as above &mdash; `EVT` and `FLD` Namespaces.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>eventID</th>
+  <th>TW:Namespace:eventID</th>
+  <th>fieldNumber</th>
+  <th>TW:Namespace:fieldNumber</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>event-1</td>
+  <td>EVT</td>
+  <td><em>(blank)</em></td>
+  <td><em>(blank)</em></td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td><em>(blank)</em></td>
+  <td><em>(blank)</em></td>
+  <td>1</td>
+  <td>FLD</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>occ-c</td>
+  <td>PreservedSpecimen</td>
+  <td>Melanoplus femurrubrum</td>
+  <td>event-1</td>
+  <td>EVT</td>
+  <td>1</td>
+  <td>FLD</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-errored); font-weight: 600;">Errored</span></td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+  <td class="outcome-col">0</td>
+</tr>
+</tbody>
+</table>
+
+Rows 1 and 2 each independently establish their own CollectingEvent &mdash; row 1's identified by `eventID: "event-1"`, row 2's by `fieldNumber: "1"`. Row 3 supplies both together, but they now point at two different, already-established CollectingEvents. Row 3 errors with `eventID/fieldNumber: "eventId and fieldNumber refer to different collecting events"`, and both pre-existing CollectingEvents are left untouched &mdash; TaxonWorks never merges them.
+
+###### No eventID or fieldNumber given
+
+Without an `eventID` or `fieldNumber` to match against, a new CollectingEvent is created for every row, however similar its other Event- and Location-class data is to a previous row's. A conforming importer is not expected to infer Event identity from field values alone &mdash; only from an explicit identifier.
+
+**Test spreadsheet:** [`no_event_field_number_identical_locality.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/no_event_field_number_identical_locality.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/no_event_field_number_identical_locality.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+<table class="spec-table">
+<colgroup>
+  <col>
+  <col>
+  <col>
+  <col>
+  <col style="width: 1em;">
+  <col style="width: 4.5em;">
+  <col style="width: 5em;">
+  <col style="width: 5.5em;">
+  <col style="width: 5.5em;">
+</colgroup>
+<thead>
+<tr>
+  <th>occurrenceID</th>
+  <th>basisOfRecord</th>
+  <th>scientificName</th>
+  <th>verbatimLocality</th>
+  <th class="col-spacer">&nbsp;</th>
+  <th class="outcome-header">status</th>
+  <th class="outcome-header">Taxon<wbr>Names created</th>
+  <th class="outcome-header">Collection<wbr>Objects created</th>
+  <th class="outcome-header">Taxon<wbr>Determinations created</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>occ-a</td>
+  <td>PreservedSpecimen</td>
+  <td>Orotettix andeanus</td>
+  <td>Mount Kilimanjaro</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+<tr>
+  <td>occ-b</td>
+  <td>PreservedSpecimen</td>
+  <td>Sphenarium purpurascens</td>
+  <td>Mount Kilimanjaro</td>
+  <td class="col-spacer">&nbsp;</td>
+  <td class="outcome-col"><span style="color: var(--color-import-imported); font-weight: 600;">Imported</span></td>
+  <td class="outcome-col">2</td>
+  <td class="outcome-col">1</td>
+  <td class="outcome-col">1</td>
+</tr>
+</tbody>
+</table>
+
+**Notes:** Both rows share the identical `verbatimLocality`, but 2 separate CollectingEvents are created &mdash; one per row. If you need rows sharing real-world Event data to share a single CollectingEvent, give them a common `eventID` and/or `fieldNumber`.
 
 ##### Containers
 
