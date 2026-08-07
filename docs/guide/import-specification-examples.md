@@ -142,6 +142,18 @@ Terms naming the taxon the occurrence was determined to be.
   <a class="term-chip" href="#fieldnumber-namespace-mechanics"><code>TW:Namespace:fieldNumber</code></a>
 </div>
 
+### TaxonWorks-specific mappings
+
+Generic mechanisms available on any import, not tied to a specific DwC term &mdash; see [TaxonWorks-specific mappings](#taxonworks-specific-mappings) below for the full worked examples.
+
+<div class="term-index">
+  <a class="term-chip" href="#tw-dataattribute-target-class-predicate"><code>TW:DataAttribute:*</code></a>
+  <a class="term-chip" href="#tw-biocurationgroup-group"><code>TW:BiocurationGroup:*</code></a>
+  <a class="term-chip" href="#automatic-mapping-when-a-project-predicate-uri-matches-a-dwc-term"><code>(project predicate matching a DwC term URI)</code></a>
+  <a class="term-chip" href="#tw-model-class-field-direct-field-mapping"><code>TW:&lt;model_class&gt;:*</code></a>
+  <a class="term-chip" href="#tw-tag-class-selector"><code>TW:Tag:*</code></a>
+</div>
+
 ## Minimum required fields
 
 The smallest file the importer will accept &mdash; just `occurrenceID`, `basisOfRecord`, and `scientificName`.
@@ -4829,6 +4841,121 @@ TaxonWorks does not currently do this. Building the (about-to-fail) TypeMaterial
 **Settings:** None (all defaults).
 
 Row `occ-a`, `scientificName: "Camponotus"` (genus rank), `typeStatus: "holotype"`, currently errors instead of importing, since a genus isn't a species-group name and can't be designated a type. Enabling `Error records with unprocessable typeStatus information` (`require_type_material_success`) instead gives a clear, specific error naming the real problem &mdash; `protonym_id: "Type cannot be designated, name is not a species group name"` &mdash; ironically clearer than what the default, "lenient" setting produces for the identical situation.
+
+## TaxonWorks-specific mappings
+
+Beyond the DwC terms above, `TW:`-prefixed columns give access to mappings that aren't DwC terms at all: arbitrary custom predicates, biocuration beyond `sex`, a direct escape hatch to specific model fields, and Keyword tags. See [TaxonWorks mappings](/guide/import#taxonworks-mappings) for the full reference; this section works through each mechanism with a minimal example.
+
+### TW:DataAttribute:&lt;target_class&gt;:&lt;predicate&gt;
+
+Attaches an arbitrary, project-defined Predicate (a custom attribute) to the row's CollectionObject or CollectingEvent, using the DwC column mechanism to bring in a value that has no dedicated DwC term. `<target_class>` is `CollectionObject` or `CollectingEvent`; `<predicate>` may be the predicate's name or its URI. Unlike [georeferencedBy](#georeferencedby), the predicate must already exist &mdash; it is never auto-created.
+
+**Test spreadsheet:** [`tw_data_attribute.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_data_attribute.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_data_attribute.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Predicate named `ageInDays`.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `TW:DataAttribute:CollectionObject:ageInDays: "5"`, imports and attaches a data attribute (predicate `ageInDays`, value `5`) to the CollectionObject.
+
+#### TW:DataAttribute: predicate not found
+
+**Test spreadsheet:** [`tw_data_attribute_predicate_not_found.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_data_attribute_predicate_not_found.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_data_attribute_predicate_not_found.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+Row `occ-a`, `TW:DataAttribute:CollectionObject:nonexistentPredicate: "5"`, errors with `tw:dataattribute:collectionobject:nonexistentpredicate: "Predicate with nonexistentpredicate URI or name not found"` &mdash; the whole column header, lowercased, names the field in the error.
+
+### TW:BiocurationGroup:&lt;group&gt;
+
+Assigns a biocuration classification using any project BiocurationGroup, not just the built-in `sex` mapping (see [sex](#sex)). `<group>` is the BiocurationGroup's name or URI; the cell value is the BiocurationClass's name or URI, and must belong to that group.
+
+::: tip
+The correct syntax is a single colon: `TW:BiocurationGroup:<group>`. (An earlier version of this documentation showed `TW::BiocurationGroup:<group>`, with a double colon, which does not work &mdash; it isn't recognized as a mapped column at all, and is silently ignored like any other unmapped column.)
+:::
+
+**Test spreadsheet:** [`tw_biocuration_group.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_biocuration_group.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_biocuration_group.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A BiocurationGroup named `Caste`, with a BiocurationClass `Queen` belonging to it.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `TW:BiocurationGroup:Caste: "Queen"`, imports and creates a BiocurationClassification of `Queen` on the CollectionObject.
+
+#### TW:BiocurationGroup: group not found
+
+Unlike `sex`, which auto-creates its BiocurationGroup and any new BiocurationClass value it hasn't seen before (see [sex](#sex)), this generic mechanism requires both the group and the class to already exist.
+
+**Test spreadsheet:** [`tw_biocuration_group_not_found.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_biocuration_group_not_found.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_biocuration_group_not_found.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+Row `occ-a`, `TW:BiocurationGroup:Nonexistent: "Queen"`, errors with `tw:biocurationgroup:nonexistent: "Biocuration group with 'nonexistent' URI or name not found"`.
+
+### Automatic mapping when a project predicate URI matches a DwC term
+
+If your project has a custom Predicate registered (via Project Preferences) for CollectionObject and/or CollectingEvent whose URI is a Darwin Core term URI (`http://rs.tdwg.org/dwc/terms/<term>`), the importer automatically reads the matching DwC column and attaches it as a data attribute using that predicate &mdash; regardless of whether the same column is *also* mapped normally elsewhere. This preserves the verbatim value under your own predicate, and is the one mechanism on this page that isn't triggered by a special `TW:`-prefixed column at all; it's driven entirely by project configuration.
+
+**Test spreadsheet:** [`tw_dwc_predicate_auto_mapping.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_dwc_predicate_auto_mapping.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_dwc_predicate_auto_mapping.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Predicate named `my custom language field`, with URI `http://rs.tdwg.org/dwc/terms/language`, registered for `CollectionObject` in the project's `model_predicate_sets` preference.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `language: "en"` &mdash; an ordinary DwC column, no `TW:` prefix &mdash; imports and attaches a data attribute using the `my custom language field` predicate, with value `en`, even though the predicate's own name has nothing to do with the column header.
+
+### TW:&lt;model_class&gt;:&lt;field&gt; direct field mapping
+
+An advanced escape hatch: sets a specific CollectionObject or CollectingEvent model field directly, bypassing any DwC term mapping. Requires familiarity with the underlying TaxonWorks models; see [Direct mapping to TW model fields](/guide/import#direct-mapping-to-tw-model-fields) for the full list of allowed fields per model.
+
+**Test spreadsheet:** [`tw_direct_field_mapping.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_direct_field_mapping.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_direct_field_mapping.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** None.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `TW:CollectingEvent:verbatim_label: "Some Locality, 3-IV-1999, J. Smith"`, imports and sets the CollectingEvent's `verbatim_label` field to that value directly.
+
+#### TW:&lt;model_class&gt;:&lt;field&gt; naming a field that is not allowed
+
+Only an explicit allow-list of fields per model is accepted (see the reference linked above) &mdash; not arbitrary model attributes.
+
+**Test spreadsheet:** [`tw_direct_field_mapping_invalid.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_direct_field_mapping_invalid.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_direct_field_mapping_invalid.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+Row `occ-a`, `TW:CollectingEvent:not_a_real_field: "whatever"`, errors with `tw:collectingevent:not_a_real_field: "not_a_real_field is not a valid CollectingEvent attribute"`.
+
+### TW:Tag:&lt;class&gt;:&lt;selector&gt;
+
+::: tip
+This mechanism isn't described in the main [TaxonWorks mappings](/guide/import#taxonworks-mappings) reference at all &mdash; found directly in the importer's code (`get_tw_tag_fields_for`/`append_tag_attribute`, `app/models/dataset_record/darwin_core.rb` and `occurrence.rb`) and confirmed working empirically.
+:::
+
+Applies an existing Keyword as a tag on the row's CollectionObject or CollectingEvent. `<class>` is `CollectionObject` or `CollectingEvent`; `<selector>` is the Keyword's name or URI. The cell value must be `true`/`1` to apply the tag, or blank/`false`/`0` to not apply it.
+
+**Test spreadsheet:** [`tw_tag.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_tag.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_tag.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Keyword named `Reviewed`.
+
+**Settings:** None (all defaults).
+
+Row `occ-a`, `TW:Tag:CollectionObject:Reviewed: "true"`, imports and applies the `Reviewed` tag to the CollectionObject.
+
+#### TW:Tag: "false" and an invalid value
+
+**Test spreadsheet:** [`tw_tag_false_and_invalid.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/tw_tag_false_and_invalid.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/tw_tag_false_and_invalid.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:** Same Keyword `Reviewed`, for both rows.
+
+Row `occ-a`, value `"false"`, imports without applying the tag. Row `occ-b`, value `"maybe"`, errors with `TW:Tag:CollectionObject:Reviewed: "Tag value must be \"true\" or \"1\" to apply, or blank, \"false\", or \"0\", to not apply"`.
 
 ## Settings
 
