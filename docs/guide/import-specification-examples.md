@@ -644,6 +644,10 @@ Covers the [Occurrence class](/guide/import#occurrence-class) terms: `occurrence
 Row 2 of the same-import pair also reports a second, spurious message: `identifier_object: "is invalid"`. This shouldn't be there &mdash; it's noise left over from how the rejection is currently implemented, not a second thing wrong with the row. Ignore it; the real problem is the one named above.
 :::
 
+::: warning
+`occurrenceID` has no `TW:Namespace:occurrenceID` column and no global-identifier-type option &mdash; unlike `eventID` (see [`eventID` details](/guide/import#eventid-details)), it can't be pointed at a persistent Namespace or declared `Identifier::Global::Uuid`. It's always assigned in the one-off namespace an import auto-creates for itself, and the importer never validates its format either. So even a real, universally-unique UUID in `occurrenceID` doesn't get checked or matched against anything outside that one import run &mdash; `occurrenceID` is never read back to look up an existing `CollectionObject`. Re-running an import with the exact same `occurrenceID`s will *not*, on its own, be recognized as reimporting the same rows: it's *other* fields in the row &mdash; a matching `catalogNumber`, a matching `eventID`/`fieldNumber`, matching taxon determination data, and so on &mdash; that determine whether a re-import reuses existing records or creates duplicates.
+:::
+
 ### catalogNumber namespace mechanics
 
 A blank `catalogNumber` needs nothing. A `catalogNumber` paired with an explicit `TW:Namespace:catalogNumber` resolves immediately. A `catalogNumber` with neither that column nor an `institutionCode`/`collectionCode` mapping configured in `Settings` doesn't error &mdash; it stages as <span style="color: var(--color-import-not-ready); font-weight: 600;">NotReady</span> and stays that way until you resolve it. **NotReady rows are never included when the import is run** &mdash; they're simply excluded from processing (not attempted, not failed) until a namespace is set.
