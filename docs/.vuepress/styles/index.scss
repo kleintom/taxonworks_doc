@@ -59,6 +59,17 @@
   }
 }
 
+// Pages with `pageClass: wide-page` in frontmatter (e.g. Import Specification
+// Examples) get a wider content column, since their spec-table examples have
+// many narrow columns and benefit from the extra room on wide screens.
+// `--content-width` is the theme's own variable (@vuepress/theme-default,
+// _mixins.scss content-wrapper); overriding it here is scoped to this class
+// via normal CSS custom property cascade, no theme override needed. It's a
+// max-width, so narrower viewports are unaffected regardless of this value.
+.wide-page {
+  --content-width: 1600px;
+}
+
 .figure-left {
   text-align: left;
 }
