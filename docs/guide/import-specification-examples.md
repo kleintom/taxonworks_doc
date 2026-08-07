@@ -760,6 +760,22 @@ Unlike `catalogNumber`, a `recordNumber` with no way to resolve a namespace does
 
 **Notes:** Row 1's error is on `TW:Namespace:recordNumber: "Namespace not found"` &mdash; named for the companion column, not `recordNumber` itself.
 
+### recordNumber given with its namespace prefix already included
+
+A `recordNumber` value is expected without its namespace's short-name prefix (see [details above](/guide/import#recordnumber-details)) &mdash; the prefix is added when computing the identifier, not stripped from what you provide. A value that already includes it is expected to be rejected, naming the mismatch, the same way [catalogNumber](#catalognumber-must-match-its-computed-identifier-verbatim) and [eventID](#eventid-must-match-its-computed-identifier-verbatim) reject a verbatim mismatch when their respective settings are enabled.
+
+::: danger
+TaxonWorks does not currently do this. `recordNumber: "DEF222"` in a Namespace `DEF` (delimiter `NONE`) &mdash; already including the prefix &mdash; imports successfully and computes an identifier of `DEFDEF222`: the prefix applied a second time, on top of the one already in the value. There is no setting that catches this, unlike `catalogNumber`/`eventID`, which are either tolerant of a given prefix by default or can be set to reject a mismatch explicitly. If a `recordNumber`-based identifier looks like it starts with its own namespace's short name twice, this is why.
+:::
+
+**Test spreadsheet:** [`record_number_prefix_included.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/record_number_prefix_included.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/record_number_prefix_included.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `DEF`, delimiter `NONE`.
+
+**Settings:** None (all defaults).
+
 ### recordedBy
 
 Creates one unvetted `Person` per name, and always writes the raw column value into `verbatim_collectors` regardless of how many names it parses into. Names are separated with `" | "` &mdash; the same pipe-list convention used across several DwC terms in this importer (e.g. `identifiedBy`).
@@ -1221,6 +1237,22 @@ Unlike `eventID`, `fieldNumber` has no default-namespace fallback: `TW:Namespace
 </table>
 
 **Notes:** Row 1's error is `TW:Namespace:fieldNumber: "Namespace not found"` &mdash; naming the missing companion column, not `fieldNumber` itself.
+
+### fieldNumber given with its namespace prefix already included
+
+The same issue as [recordNumber given with its namespace prefix already included](#recordnumber-given-with-its-namespace-prefix-already-included) above, for `fieldNumber`.
+
+::: danger
+`fieldNumber: "FLD200"` in a Namespace `FLD` (delimiter `NONE`) &mdash; already including the prefix &mdash; imports successfully and computes an identifier of `FLDFLD200`, the same doubled-prefix problem `recordNumber` has, for the same underlying reason.
+:::
+
+**Test spreadsheet:** [`field_number_prefix_included.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/field_number_prefix_included.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/field_number_prefix_included.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- A Namespace with short name `FLD`, delimiter `NONE`.
+
+**Settings:** None (all defaults).
 
 ### Event date
 
@@ -2347,7 +2379,7 @@ Row `occ-a`, `TW:TaxonDetermination:otu_id: "900001"`, `typeStatus: "holotype"`,
 
 ### identifiedBy, dateIdentified, and identificationRemarks
 
-`identifiedBy` is matched to people the same way [`recordedBy`](#recordedby) is, and assigned as a determiner of the row's TaxonDetermination. `dateIdentified` is parsed the same way `eventDate` is, with one difference: a `/`-separated range isn't supported here (see [next](#dateidentified-as-a-range)). `identificationRemarks` is stored as a note on the TaxonDetermination.
+`identifiedBy` is matched to people the same way [`recordedBy`](#recordedby) is, and assigned as a determiner of the row's TaxonDetermination &mdash; see [Enable searching for Organization name in determinedBy field](#enable-searching-for-organization-name-in-determinedby-field) below for matching an Organization instead. `dateIdentified` is parsed the same way `eventDate` is, with one difference: a `/`-separated range isn't supported here (see [next](#dateidentified-as-a-range)). `identificationRemarks` is stored as a note on the TaxonDetermination.
 
 **Test spreadsheet:** [`identification_and_event_pass_through_terms.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/identification_and_event_pass_through_terms.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/identification_and_event_pass_through_terms.tsv">locally</a><br>
 **Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
@@ -2410,6 +2442,40 @@ Test spreadsheet: [`date_identified_range.tsv`](https://github.com/SpeciesFileGr
 Test code: [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
 
 Row `occ-a`, `dateIdentified: "1999-07-04/1999-08-01"`, errors with `dateIdentified: "Date range for taxon determination is not supported."` &mdash; unlike `eventDate` (see [eventDate: single value vs. a range](#eventdate-single-value-vs-a-range)), a TaxonDetermination has only one made-date, not a start and end.
+
+### Enable searching for Organization name in determinedBy field
+
+By default, `identifiedBy` is always parsed as one or more people's names (the same mechanism [`recordedBy`](#recordedby) uses), even if the value actually names an Organization. This setting checks Organizations by name first.
+
+::: tip
+The setting's own label says "determinedBy", but it's `identifiedBy` it actually affects &mdash; there is no `determinedBy` DwC term. Confirmed directly against the setting's code (`app/models/dataset_record/darwin_core/occurrence.rb`, `parse_identification_class`).
+:::
+
+**Test spreadsheet:** [`identified_by_organization.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/identified_by_organization.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/identified_by_organization.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- An Organization named `Field Museum`.
+
+**Off (default):** row `occ-a`, `identifiedBy: "Field Museum"`, imports; no Organization is checked, and the value is run through person-name parsing regardless of the Organization sharing its exact name.
+
+**On:** the same row instead matches the Organization `Field Museum` directly, assigning it (not a parsed person) as the TaxonDetermination's determiner.
+
+### Also search for Organization alternate name
+
+Only meaningful with the setting above also enabled. By default, an Organization is matched by its `name` field only; this setting also checks its `alternate_name`.
+
+**Test spreadsheet:** [`identified_by_organization_alt_name.tsv`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/files/import_datasets/occurrences/specification/identified_by_organization_alt_name.tsv) &middot; <a href="http://localhost:4747/spec/files/import_datasets/occurrences/specification/identified_by_organization_alt_name.tsv">locally</a><br>
+**Test code:** [`occurrence_specification_spec.rb`](https://github.com/SpeciesFileGroup/taxonworks/blob/development/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb) &middot; <a href="http://localhost:4747/spec/models/dataset_record/darwin_core/occurrence_specification_spec.rb">locally</a>
+
+**Input:**
+- An Organization named `Field Museum`, with alternate name `FM`.
+
+**Settings:** `Enable searching for Organization name in determinedBy field` on for both rows below.
+
+**Off (default):** row `occ-a`, `identifiedBy: "FM"`, imports; `FM` doesn't match the Organization's `name` (`Field Museum`), and its `alternate_name` isn't checked, so no Organization is matched.
+
+**On:** the same row instead matches the Organization via its `alternate_name`.
 
 ## Taxon
 
