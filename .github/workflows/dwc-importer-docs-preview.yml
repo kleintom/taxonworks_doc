@@ -1,0 +1,83 @@
+name: DWC importer docs preview
+
+# Publishes this fork's dwc_importer_updates branch to GitHub Pages, so it can
+# be shared for review without waiting on (or affecting) the real
+# docs.taxonworks.org deploy, which is a separate workflow (gh-pages.yml)
+# scoped to the upstream repo's main branch.
+on:
+  push:
+    branches: [dwc_importer_updates]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one Pages deployment at a time; let an in-flight run finish rather
+# than cancelling it mid-deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build VuePress site
+        run: npm run docs:build
+        env:
+          # Project Pages site (github.io/<repo>/), not a custom domain, so
+          # asset URLs need the repo name as a base path.
+          VUEPRESS_BASE: /taxonworks_doc/
+
+      - name: Rewrite hardcoded absolute links to include the base path
+        # VuePress only rewrites internal links it resolves through its own
+        # router (relative markdown links, its withBase() helper, etc). This
+        # repo's content links many internal pages with hardcoded absolute
+        # paths (e.g. "/guide/import#anchor") written directly as strings,
+        # which bypass that and are left as plain "/...", 404ing once the
+        # site is no longer served from "/". This includes the config's own
+        # hardcoded favicon href. Post-processing the built HTML is simplest
+        # since it touches only this preview build, not the site's real
+        # content or the docs.taxonworks.org deploy.
+        run: |
+          find docs/.vuepress/dist -name "*.html" \
+            -exec perl -i -pe 's{(href|src)="/(?!taxonworks_doc/)}{$1="/taxonworks_doc/}g' {} +
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vuepress/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

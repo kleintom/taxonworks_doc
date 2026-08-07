@@ -14,6 +14,12 @@ export default defineUserConfig({
   lang: 'en-US',
   head: [['link', { rel: 'icon', href: '/images/favicon.svg' }]],
 
+  // Only set for the GitHub Pages preview build (see
+  // .github/workflows/dwc-importer-docs-preview.yml), which is served from
+  // github.io/<repo>/ rather than a custom domain at the root. Unset (and
+  // therefore '/') for local dev and the real docs.taxonworks.org build.
+  base: process.env.VUEPRESS_BASE || '/',
+
   bundler: viteBundler(),
 
   locales: {
